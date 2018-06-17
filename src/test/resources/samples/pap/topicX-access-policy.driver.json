@@ -1,0 +1,26 @@
+{
+	"rules": [
+		{
+			"subject": "clientID1",
+			"permissions": [
+				{
+					"action": "PUBLISH",
+					"allow": true
+				},
+				{
+					"action": "SUBSCRIBE",
+					"allow": false
+				}
+			]
+		},
+		{
+			"subject": "clientID2",
+			"permissions": [
+				{
+					"action": "SUBSCRIBE",
+					"allow": true
+				}
+			]
+		}
+	]
+}

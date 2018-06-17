@@ -1,0 +1,71 @@
+{
+	"policy": {
+		"id": "resource.type=GROUP",
+		"version": "1.0",
+		"target": [
+			[
+				[
+					{
+						"matchFunction": "urn:oasis:names:tc:xacml:1.0:function:string-equal",
+						"value": "GROUP",
+						"attributeDesignator": {
+							"category": "urn:oasis:names:tc:xacml:3.0:attribute-category:resource",
+							"id": "urn:thalesgroup:xacml:resource:resource-type",
+							"dataType": "http://www.w3.org/2001/XMLSchema#string",
+							"mustBePresent": true
+						}
+					}
+				]
+			]
+		],
+		"combiningAlgId": "urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:first-applicable",
+		"policies": [
+			{
+				"policy": {
+					"description": "Anonymous access to Kafka Connect cluster group (set by CONNECT_GROUP_ID)",
+					"id": "resource.type=GROUP#resource.id=compose-connect-group",
+					"version": "1.0",
+					"target": [
+						[
+							[
+								{
+									"matchFunction": "urn:oasis:names:tc:xacml:1.0:function:string-equal",
+									"value": "compose-connect-group",
+									"attributeDesignator": {
+										"category": "urn:oasis:names:tc:xacml:3.0:attribute-category:resource",
+										"id": "urn:oasis:names:tc:xacml:1.0:resource:resource-id",
+										"dataType": "http://www.w3.org/2001/XMLSchema#string",
+										"mustBePresent": true
+									}
+								}
+							]
+						]
+					],
+					"combiningAlgId": "urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable",
+					"rules": [
+						{
+							"id": "action.id=READ",
+							"effect": "Permit",
+							"target": [
+								[
+									[
+										{
+											"matchFunction": "urn:oasis:names:tc:xacml:1.0:function:string-equal",
+											"value": "READ",
+											"attributeDesignator": {
+												"category": "urn:oasis:names:tc:xacml:3.0:attribute-category:action",
+												"id": "urn:oasis:names:tc:xacml:1.0:action:action-id",
+												"dataType": "http://www.w3.org/2001/XMLSchema#string",
+												"mustBePresent": true
+											}
+										}
+									]
+								]
+							]
+						}
+					]
+				}
+			}
+		]
+	}
+}

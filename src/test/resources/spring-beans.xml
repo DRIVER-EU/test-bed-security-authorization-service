@@ -1,0 +1,143 @@
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements. See the NOTICE file distributed with this work for additional information regarding copyright ownership. 
+	The ASF licenses this file to you under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 
+	Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+	See the License for the specific language governing permissions and limitations under the License. -->
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:core="http://cxf.apache.org/core"
+	xmlns:sec="http://www.springframework.org/schema/security"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="
+	         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
+            http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd
+            http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd
+            http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+
+	<bean
+		id="httpFirewall"
+		class="org.springframework.security.web.firewall.StrictHttpFirewall"
+		p:allowSemicolon="true" />
+
+	<sec:http-firewall ref="httpFirewall" />
+
+	<sec:authentication-manager>
+		<sec:authentication-provider>
+			<sec:user-service>
+				<!-- authorities is a comma-separated list of roles -->
+				<!-- When migrating to Spring Security 5.x, prefix all non-hashed passwords with {noop}, e.g. '{noop}password' to indicate to DelegatingPasswordEncoder that NoOpPasswordEncoder should be used. This is not safe for production, but makes reading in samples easier. Normally 
+					passwords should be hashed using BCrypt. -->
+				<sec:user
+					name="admin"
+					password="admin"
+					authorities="ROLE_ADMIN" />
+			</sec:user-service>
+		</sec:authentication-provider>
+	</sec:authentication-manager>
+
+	<sec:http use-expressions="true">
+		<!-- https://docs.spring.io/spring-security/site/docs/current/reference/html/csrf.html -->
+		<sec:csrf disabled="true" />
+		<!-- ROLE_{R} is equivalent to hasRole(ROLE_{R}) where ROLE_{R} is specified in a sec:user/@authorities -->
+		<!-- For production, REPLACE 'http' with 'https' in requires-channel attribute, then change server.ssl.enabled to 'true' in application.properties -->
+		<sec:intercept-url
+			pattern="/services/authz/pap/**"
+			access="hasRole('ROLE_ADMIN')"
+			requires-channel="http" />
+		<sec:http-basic />
+	</sec:http>
+
+	<!-- <bean -->
+	<!-- id="apiSchemaHandler" -->
+	<!-- class="org.apache.cxf.jaxrs.utils.schemas.SchemaHandler"> -->
+	<!-- <property -->
+	<!-- name="catalogLocation" -->
+	<!-- value="classpath:/catalog.xml" /> -->
+	<!-- <property name="schemaLocations"> -->
+	<!-- <util:list> -->
+	<!-- <value>classpath:/xacml-core-v3-schema-wd-17.xsd</value> -->
+	<!-- </util:list> -->
+	<!-- </property> -->
+	<!-- </bean> -->
+
+
+	<!-- JAX-RS service supporting XML (textual) and JSON -->
+	<core:bus>
+		<core:properties>
+			<!-- Since not using default JSON Provider, prevent it to be triggered (especially when using FastInfoset instead of JSON, else there is conflict) -->
+			<entry
+				key="skip.default.json.provider.registration"
+				value="true" />
+		</core:properties>
+	</core:bus>
+
+	<!-- <jaxrs:server depends-on="ClientAuthHttpsSettings" address="https://localhost:${testutil.ports.PdpServer}/authzforce-ce"> -->
+	<jaxrs:server
+		id="tazService"
+		address="/"
+		staticSubresourceResolution="true">
+		<jaxrs:serviceBeans>
+			<bean class="eu.driver.testbed.sec.authz.service.AuthzWsJaxrsRootResource">
+				<constructor-arg
+					name="confLocation"
+					value="file:${cfg.dir}/pdp.xml" />
+				<constructor-arg
+					name="catalogLocation"
+					value="${cfg.dir}/catalog.xml" />
+				<constructor-arg
+					name="extensionXsdLocation"
+					value="file:${cfg.dir}/pdp-ext.xsd" />
+				<constructor-arg
+					name="xacmlJsonPolicyFilenameSuffix"
+					value=".xacml.json" />
+			</bean>
+		</jaxrs:serviceBeans>
+		<jaxrs:features>
+			<core:logging />
+		</jaxrs:features>
+		<jaxrs:providers>
+			<!-- <bean class="org.apache.cxf.jaxrs.provider.JAXBElementProvider"> -->
+			<!-- <property -->
+			<!-- name="singleJaxbContext" -->
+			<!-- value="true" /> -->
+			<!-- <property name="extraClass" value="#{ T(org.ow2.authzforce.core.pdp.impl.PdpExtensions).getExtensionJaxbClasses().toArray() }" /> -->
+			<!-- <property -->
+			<!-- name="schemaHandler" -->
+			<!-- ref="apiSchemaHandler" /> -->
+			<!-- </bean> -->
+			<bean class="org.ow2.authzforce.jaxrs.util.JsonRiJaxrsProvider">
+				<!-- Provider for XACML/JSON profile support (only to be used on /pdp resource) -->
+				<constructor-arg name="schemasByPropertyName">
+					<util:map>
+						<entry
+							key="Request"
+							value="#{T(org.ow2.authzforce.xacml.json.model.XacmlJsonUtils).REQUEST_SCHEMA}" />
+						<entry
+							key="rules"
+							value="#{T(eu.driver.testbed.sec.authz.service.DriverAccessPolicyUtils).JSON_SCHEMA}" />
+					</util:map>
+				</constructor-arg>
+				<constructor-arg
+					name="maxJsonStringSize"
+					value="1000" />
+				<constructor-arg
+					name="maxNumOfImmediateChildren"
+					value="100" />
+				<constructor-arg
+					name="maxDepth"
+					value="100" />
+			</bean>
+			<bean class="org.ow2.authzforce.jaxrs.util.BadRequestExceptionMapper" />
+			<bean class="org.ow2.authzforce.jaxrs.util.ClientErrorExceptionMapper" />
+			<bean class="org.ow2.authzforce.jaxrs.util.UnsupportedOperationExceptionMapper" />
+			<bean class="org.ow2.authzforce.jaxrs.util.ServerErrorExceptionMapper" />
+			<bean class="org.ow2.authzforce.jaxrs.util.DefaultExceptionMapper" />
+		</jaxrs:providers>
+	</jaxrs:server>
+
+</beans>
+

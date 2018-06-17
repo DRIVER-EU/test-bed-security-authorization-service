@@ -1,0 +1,59 @@
+{
+	"$schema": "http://json-schema.org/draft-06/schema",
+	"$id": "http://driver-eu.github.io/test-bed-security-authorization-service/schemas/1/access_policy.schema.json",
+	"title": "JSON schema of Access Policy object defined in DRIVER+ European FP7 project, very similar to Apache Kafka's' ACLs",
+	"definitions": {
+		"Permission": {
+			"type": "object",
+			"properties": {
+				"action": {
+					"type": "string"
+				},
+				"allow": {
+					"type": "boolean"
+				}
+			},
+			"required": [
+				"action",
+				"allow"
+			],
+			"additionalProperties": false
+		},
+		"Rule": {
+			"type": "object",
+			"properties": {
+				"subject": {
+					"type": "string"
+				},
+				"permissions": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/Permission"
+					},
+					"minItems": 1,
+					"uniqueItems": true
+				}
+			},
+			"required": [
+				"subject",
+				"permissions"
+			],
+			"additionalProperties": false
+		}
+	},
+	"type": "object",
+	"properties": {
+		"rules": {
+			"type": "array",
+			"items": {
+				"$ref": "#/definitions/Rule"
+			},
+			"minItems": 0,
+			"uniqueItems": true
+		}
+	},
+	"required": [
+		"rules"
+	],
+	"additionalProperties": false
+}

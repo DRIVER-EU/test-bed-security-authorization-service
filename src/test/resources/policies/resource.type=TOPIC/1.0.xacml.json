@@ -1,0 +1,107 @@
+{
+	"policy": {
+		"id": "resource.type=TOPIC",
+		"version": "1.0",
+		"target": [
+			[
+				[
+					{
+						"matchFunction": "urn:oasis:names:tc:xacml:1.0:function:string-equal",
+						"value": "TOPIC",
+						"attributeDesignator": {
+							"category": "urn:oasis:names:tc:xacml:3.0:attribute-category:resource",
+							"id": "urn:thalesgroup:xacml:resource:resource-type",
+							"dataType": "http://www.w3.org/2001/XMLSchema#string",
+							"mustBePresent": true
+						}
+					}
+				]
+			]
+		],
+		"combiningAlgId": "urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:first-applicable",
+		"policies": [
+			{
+				"policy": {
+				"description": "Anonymous access to Confluent Schema Registry and Kafa Connect's configuration, offset and status storage topics (set by CONNECT_CONFIG_STORAGE_TOPIC, CONNECT_OFFSET_STORAGE_TOPIC, CONNECT_STATUS_STORAGE_TOPIC)",
+					"id": "resource.type=TOPIC#resource.id={_schemas,docker-connect-configs,docker-connect-offsets,docker-connect-status}",
+					"version": "1.0",
+					"target": [
+						[
+							[
+								{
+									"matchFunction": "urn:oasis:names:tc:xacml:1.0:function:string-equal",
+									"value": "_schemas",
+									"attributeDesignator": {
+										"category": "urn:oasis:names:tc:xacml:3.0:attribute-category:resource",
+										"id": "urn:oasis:names:tc:xacml:1.0:resource:resource-id",
+										"dataType": "http://www.w3.org/2001/XMLSchema#string",
+										"mustBePresent": true
+									}
+								}
+							],
+							[
+								{
+									"matchFunction": "urn:oasis:names:tc:xacml:1.0:function:string-equal",
+									"value": "docker-connect-configs",
+									"attributeDesignator": {
+										"category": "urn:oasis:names:tc:xacml:3.0:attribute-category:resource",
+										"id": "urn:oasis:names:tc:xacml:1.0:resource:resource-id",
+										"dataType": "http://www.w3.org/2001/XMLSchema#string",
+										"mustBePresent": true
+									}
+								}
+							],
+							[
+								{
+									"matchFunction": "urn:oasis:names:tc:xacml:1.0:function:string-equal",
+									"value": "docker-connect-offsets",
+									"attributeDesignator": {
+										"category": "urn:oasis:names:tc:xacml:3.0:attribute-category:resource",
+										"id": "urn:oasis:names:tc:xacml:1.0:resource:resource-id",
+										"dataType": "http://www.w3.org/2001/XMLSchema#string",
+										"mustBePresent": true
+									}
+								}
+							],
+							[
+								{
+									"matchFunction": "urn:oasis:names:tc:xacml:1.0:function:string-equal",
+									"value": "docker-connect-status",
+									"attributeDesignator": {
+										"category": "urn:oasis:names:tc:xacml:3.0:attribute-category:resource",
+										"id": "urn:oasis:names:tc:xacml:1.0:resource:resource-id",
+										"dataType": "http://www.w3.org/2001/XMLSchema#string",
+										"mustBePresent": true
+									}
+								}
+							]
+						]
+					],
+					"combiningAlgId": "urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable",
+					"rules": [
+						{
+							"id": "action.id=READ",
+							"effect": "Permit",
+							"target": [
+								[
+									[
+										{
+											"matchFunction": "urn:oasis:names:tc:xacml:1.0:function:string-equal",
+											"value": "READ",
+											"attributeDesignator": {
+												"category": "urn:oasis:names:tc:xacml:3.0:attribute-category:action",
+												"id": "urn:oasis:names:tc:xacml:1.0:action:action-id",
+												"dataType": "http://www.w3.org/2001/XMLSchema#string",
+												"mustBePresent": true
+											}
+										}
+									]
+								]
+							]
+						}
+					]
+				}
+			}
+		]
+	}
+}
