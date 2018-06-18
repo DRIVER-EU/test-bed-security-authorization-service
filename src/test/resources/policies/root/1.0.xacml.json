@@ -29,6 +29,11 @@
 		"policies": [
 			{
 				"policyRef": {
+					"id": "resource.type=CLUSTER"
+				}
+			},
+			{
+				"policyRef": {
 					"id": "resource.type=TOPIC"
 				}
 			},

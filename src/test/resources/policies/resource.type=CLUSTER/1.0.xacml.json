@@ -1,13 +1,13 @@
 {
 	"policy": {
-		"id": "resource.type=GROUP",
+		"id": "resource.type=CLUSTER",
 		"version": "1.0",
 		"target": [
 			[
 				[
 					{
 						"matchFunction": "urn:oasis:names:tc:xacml:1.0:function:string-equal",
-						"value": "GROUP",
+						"value": "CLUSTER",
 						"attributeDesignator": {
 							"category": "urn:oasis:names:tc:xacml:3.0:attribute-category:resource",
 							"id": "urn:thalesgroup:xacml:resource:resource-type",
@@ -22,15 +22,15 @@
 		"policies": [
 			{
 				"policy": {
-					"description": "Anonymous access to Kafka Connect cluster group (set by CONNECT_GROUP_ID)",
-					"id": "resource.type=GROUP#resource.id=compose-connect-group",
+					"description": "Anonymous access to cluster kafka-cluster",
+					"id": "resource.type=CLUSTER#resource.id=kafka-cluster",
 					"version": "1.0",
 					"target": [
 						[
 							[
 								{
 									"matchFunction": "urn:oasis:names:tc:xacml:1.0:function:string-equal",
-									"value": "compose-connect-group",
+									"value": "kafka-cluster",
 									"attributeDesignator": {
 										"category": "urn:oasis:names:tc:xacml:3.0:attribute-category:resource",
 										"id": "urn:oasis:names:tc:xacml:1.0:resource:resource-id",
@@ -44,14 +44,14 @@
 					"combiningAlgId": "urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable",
 					"rules": [
 						{
-							"id": "action.id={READ,DESCRIBE}",
+							"id": "action.id={CLUSTER_ACTION,CREATE}",
 							"effect": "Permit",
 							"target": [
 								[
 									[
 										{
 											"matchFunction": "urn:oasis:names:tc:xacml:1.0:function:string-equal",
-											"value": "READ",
+											"value": "CLUSTER_ACTION",
 											"attributeDesignator": {
 												"category": "urn:oasis:names:tc:xacml:3.0:attribute-category:action",
 												"id": "urn:oasis:names:tc:xacml:1.0:action:action-id",
@@ -63,7 +63,7 @@
 									[
 										{
 											"matchFunction": "urn:oasis:names:tc:xacml:1.0:function:string-equal",
-											"value": "DESCRIBE",
+											"value": "CREATE",
 											"attributeDesignator": {
 												"category": "urn:oasis:names:tc:xacml:3.0:attribute-category:action",
 												"id": "urn:oasis:names:tc:xacml:1.0:action:action-id",
