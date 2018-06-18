@@ -12,7 +12,7 @@
 	<artifactId>driver-testbed-sec-authz-service</artifactId>
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>DRIVER+ Testbed Security Service for Authorization (policy administration and decision, aka PAP and PDP in XACML standard)</description>
-	<version>1.0.0</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<url>http://www.driver-project.eu/</url>
 	<developers>
 		<developer>
@@ -237,11 +237,16 @@
 				<artifactId>dockerfile-maven-plugin</artifactId>
 				<version>1.3.6</version>
 				<configuration>
-					<!-- <dockerDirectory>docker</dockerDirectory>-->
+					<!-- <dockerDirectory>dockAer</dockerDirectory> -->
 					<repository>${docker.image.prefix}/${project.artifactId}</repository>
 					<buildArgs>
 						<JAR_FILE>target/${project.build.finalName}.jar</JAR_FILE>
 					</buildArgs>
+					<forceTags>true</forceTags>
+					<imageTags>
+						<imageTag>${project.version}</imageTag>
+						<imageTag>latest</imageTag>
+					</imageTags>
 				</configuration>
 			</plugin>
 		</plugins>
