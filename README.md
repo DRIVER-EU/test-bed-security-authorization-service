@@ -22,7 +22,7 @@ Each request on URL path `/services/authz/pap` requires HTTP Basic authenticatio
 
 ### Create or Update the access policy for a given Kafka topic
 Create/update the access policy of a given topic (if the policy does not exist, it is created on the fly), say topic `Topic_A` with the HTTP request below (only important headers shown for conciseness, e.g.Content-Length header is omitted but required as usual):
-**Beware the Authorization header with value: `Basic xxx`, where `xxx` is the string (username:password) `admin:admin` encoded in base 64.**
+**Beware the Authorization header with value: `Basic xxx`, where `xxx` is the string (username:password) `admin:admin` encoded in base 64, according to HTTP Basic Authentication standard.**
 
 ```
 Address: http://localhost:8080/services/authz/pap/policies/resource.type=TOPIC/policies;resource.id=Topic_A
@@ -32,6 +32,8 @@ Content-Type: application/json
 Headers: {Accept=[application/json], Authorization=[Basic YWRtaW46YWRtaW4=]}
 Payload: {"rules":[{"subject":"clientID1","permissions":[{"allow":true,"action":"PUBLISH"},{"allow":false,"action":"SUBSCRIBE"}]},{"subject":"clientID2","permissions":[{"allow":true,"action":"SUBSCRIBE"}]}]}
 ```
+
+The payload of the policy is defined by the JSON schema: in the [JSON schema in the source code](https://github.com/DRIVER-EU/test-bed-security-authorization-service/blob/master/src/main/resources/eu/driver/testbed/sec/authz/service/access_policy.schema.json).
 
 ### Get the current access policy for a given Kafka topic
 Get the access policy for topic `Topic_A` for instance with a HTTP request as follows (only important headers shown for conciseness, e.g.Content-Length header is omitted but required as usual):
