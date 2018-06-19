@@ -33,7 +33,7 @@ Headers: {Accept=[application/json], Authorization=[Basic YWRtaW46YWRtaW4=]}
 Payload: {"rules":[{"subject":"clientID1","permissions":[{"allow":true,"action":"PUBLISH"},{"allow":false,"action":"SUBSCRIBE"}]},{"subject":"clientID2","permissions":[{"allow":true,"action":"SUBSCRIBE"}]}]}
 ```
 
-The payload of the policy is defined by the JSON schema: in the [JSON schema in the source code](https://github.com/DRIVER-EU/test-bed-security-authorization-service/blob/master/src/main/resources/eu/driver/testbed/sec/authz/service/access_policy.schema.json).
+The payload of the policy is defined by the JSON schema in [src/main/resources/eu/driver/testbed/sec/authz/service/access_policy.schema.json](src/main/resources/eu/driver/testbed/sec/authz/service/access_policy.schema.json).
 
 ### Get the current access policy for a given Kafka topic
 Get the access policy for topic `Topic_A` for instance with a HTTP request as follows (only important headers shown for conciseness, e.g.Content-Length header is omitted but required as usual):
