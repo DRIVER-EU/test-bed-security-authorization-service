@@ -16,7 +16,7 @@ jobs:
 
 stages:
   - name: test-bed-security-build-deploy
-    if: branch = travis
+    if: branch = master
 
 cache:
   directories:
