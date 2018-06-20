@@ -1,6 +1,12 @@
 # Testbed Security Service for Authorization
 REST service that provides access policy administration and evaluation to render a decision (Permit/Deny) for a given access request, aka *PAP* and *PDP* in [XACML](http://docs.oasis-open.org/xacml/3.0/xacml-3.0-core-spec-os-en.html) standard.
 
+## System requirements
+* OS: Linux x86_64
+* Filesystem: ext4
+* JRE: OpenJDK 8
+* RAM: 2GB or more
+
 ## Docker build
 Make sure the Docker service is running.
 To build the Docker image:
