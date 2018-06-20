@@ -13,6 +13,8 @@ deploy:
   - mvn deploy
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
   - docker push drivereu/driver-testbed-sec-authz-service
+  on:
+    branch: travis
 
 cache:
   directories:
