@@ -3,18 +3,20 @@ jdk:
   - oraclejdk8
 services:
   - docker
+  
+jobs:
+  include:
+    - stage: test-bed-security-build-deploy
+      install: mvn install dockerfile:build
+      before_script: cp .travis.settings.xml $HOME/.m2/settings.xml
+      script:
+        - mvn deploy
+        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+        - docker push drivereu/driver-testbed-sec-authz-service
 
-install: mvn install dockerfile:build
-
-before_deploy: cp .travis.settings.xml $HOME/.m2/settings.xml
-deploy:
-  provider: script
-  script:
-  - mvn deploy
-  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-  - docker push drivereu/driver-testbed-sec-authz-service
-  on:
-    branch: travis
+stages:
+  - name: test-bed-security-build-deploy
+    if: branch = travis
 
 cache:
   directories:
