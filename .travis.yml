@@ -1,0 +1,22 @@
+language: java
+
+jdk:
+- oraclejdk8
+
+install: mvn install dockerfile:build
+
+deploy:
+  provider: script
+  script:
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+    - docker push drivereu/driver-testbed-sec-authz-service
+
+cache:
+  directories:
+  - ".autoconf"
+  - "$HOME/.m2"
+  
+env:
+  global:
+  - secure: qJ6eIJsvEh2dJOuQsnc0lZ9WzIT61Hqoia8VhDLpgHQAiQHbtcw7FioDUqjQ5578iUau49q2dzrPmPSnzjOX1drjXlbYCz7REbqkeHbvUvz7uSQsKckVHc5hmsjLGw1ntbwebi6hAmMkUt56dXuc2i7DXaCFBiIiRuOxH+RWlQc08tc0hW592lUp2yo01gJp4QOSFKRHNSE3mFf+Mo3z+Ph/roJ8EnhkI46r/2tqtBYBT+RFgZiQjWJbcrh93brCXCeoEJvhv/C6FXn1K2Tq7GS2YqU7MBlD2bjME/bERjuPMHNNrskgYMcGhG53xKtTHyVV38lAGKyVW7sFJmMhmfzrxb8XYs8hT1Vq4CUd3gh5oaD42afWOhqTgq9wRziI5NQEIamkF3rutG7J9eE3yOnJlZSj0Li3DNx/ThX9BeVKUkWjCd9BTQX02hY7hhD2iSXu/MTnLGCz07YLvnOX36dsE/wT6rUVSzw6TvQiwFkiQMNArhJt9oHrD5PTbILFksY+reIMO12mq8M+g9AWwRvUqGWMe8CuCMvbVix2pFdB0kaMvb7lTGCRXXhumQ0bZ8dOEVgCmQFgJQRlxX5Tw0xYCnIPcjZ0QAlTHIta0yqUqBuGR/hljFzQbEz4lMchV4NhIBnGSMr0VS0YZBc4F4DoC2ufkwtZN2qpQOKgtn0=
+  - secure: jE+Yh1H/JUBrbYT4mmSfyvmEbkjFZv1vrNM0nWBDwK3nMtwaQ1oGi6O/av61Kowdx3cFpuujBKfglu7aJI35XZuDGQ40t9QWMFwnGoVoadjeMhpO09HyAc3jIbc1PqNQATucWVis9K8KV47Kq4AAoPpuUSf2SAmTgcR60Q2kkWrHQUntF9R3INTJFU2LmxtwF+ofDvejQIXTT/yQ9mBI1kVk5KLnwpNVmW3StaEmEhOSNBnfLgH0NZ15OONGOGQQt93FjRKZ/sHuLFBZB3RkruSz5U2R16c5tGvQEzEW4mSShu7B0+QN63PM3kWfyrtizer6mZfaUiYVp77U4QwDbwupiY+QDCClXQMSdk0AnDgbxxwXBTHq5BqDP95Qg+fju51tJt9UetyOOKqKY/uZI6zQIjZ+uLVG4LcjXowrDvPOsNNQhruTa6FeTTylTvAD+q8k1kA3e83H7azXcW6uZpo8mqqPGrN0hJtifE2o4bdzEpVqLUve3YhfHjA1qpBZ/mMY1jEz1vudXY2KBJhtRKYps8Wb4HOholth+V8ouc4+1VwuqV6tlOX5KalrNq442sJPv/VGngK3qOxI8m0Bp4JYiA4sn34dcy+xEJwAGrmygYmYMkhAQwcu7MpVdWpD1w8YO21i2OGGvqdRjKT9r34vgiTj6zRX+126uqRx/yc=
