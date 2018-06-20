@@ -33,7 +33,7 @@
 		<!-- Workaround CVE-2018-1305, CVE-2018-1304 until issue fixed: https://github.com/authzforce/restful-pdp/issues/3: force 1.5.11.RELEASE of spring-boot (cxf still depends on 1.5.10.RELEASE which depends 
 			indirectly on vulnerable Tomcat) -->
 		<spring.boot.version>1.5.11.RELEASE</spring.boot.version>
-		<docker.image.prefix>authzforce</docker.image.prefix>
+		<docker.image.prefix>drivereu</docker.image.prefix>
 	</properties>
 	<repositories>
 		<repository>
