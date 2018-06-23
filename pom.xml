@@ -33,7 +33,8 @@
 		<!-- Workaround CVE-2018-1305, CVE-2018-1304 until issue fixed: https://github.com/authzforce/restful-pdp/issues/3: force 1.5.11.RELEASE of spring-boot (cxf still depends on 1.5.10.RELEASE which depends 
 			indirectly on vulnerable Tomcat) -->
 		<spring.boot.version>1.5.11.RELEASE</spring.boot.version>
-		<docker.image.prefix>authzforce</docker.image.prefix>
+		<docker.image.prefix>drivereu</docker.image.prefix>
+		<github.global.server>github</github.global.server>
 	</properties>
 	<repositories>
 		<repository>
@@ -105,6 +106,37 @@
 	</dependencies>
 	<build>
 		<plugins>
+			<plugin>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<version>2.8.2</version>
+				<configuration>
+					<altDeploymentRepository>internal.repo::default::file://${project.build.directory}/mvn-repo</altDeploymentRepository>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>com.github.github</groupId>
+				<artifactId>site-maven-plugin</artifactId>
+				<version>0.12</version>
+				<configuration>
+					<message>Maven artifacts for ${project.name} ${project.version}</message>
+					<outputDirectory>${project.build.directory}/mvn-repo</outputDirectory>
+					<branch>refs/heads/master</branch>
+					<includes>
+						<include>**/*</include>
+					</includes>
+					<merge>true</merge>
+					<repositoryName>maven-repo</repositoryName>
+					<repositoryOwner>DRIVER-EU</repositoryOwner>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>site</goal>
+						</goals>
+						<phase>deploy</phase>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.owasp</groupId>
 				<artifactId>dependency-check-maven</artifactId>

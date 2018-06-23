@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/DRIVER-EU/test-bed-security-authorization-service.svg?branch=master)](https://travis-ci.org/DRIVER-EU/test-bed-security-authorization-service)
+
 # Testbed Security Service for Authorization
 REST service that provides access policy administration and evaluation to render a decision (Permit/Deny) for a given access request, aka *PAP* and *PDP* in [XACML](http://docs.oasis-open.org/xacml/3.0/xacml-3.0-core-spec-os-en.html) standard.
 
