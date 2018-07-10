@@ -1,14 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:http="http://cxf.apache.org/transports/http/configuration" xmlns:sec="http://cxf.apache.org/configuration/security" xsi:schemaLocation="http://www.springframework.org/schema/beans  http://www.springframework.org/schema/beans/spring-beans.xsd   http://cxf.apache.org/transports/http/configuration   http://cxf.apache.org/schemas/configuration/http-conf.xsd           http://cxf.apache.org/configuration/security    http://cxf.apache.org/schemas/configuration/security.xsd">
-    <!-- -->
-    <!-- HTTP/S configuration for web clients -->
-    <!-- -->
-    <http:conduit name="*.http-conduit">
-        <http:client ConnectionTimeout="3000000" ReceiveTimeout="3000000"/>
-        <http:tlsClientParameters disableCNCheck="true">
-            <sec:trustManagers>
-                <sec:keyStore type="JKS" password="changeit" file="src/test/resources/truststore.jks"/>
-            </sec:trustManagers>
-        </http:tlsClientParameters>
-    </http:conduit>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:http="http://cxf.apache.org/transports/http/configuration"
+	xmlns:sec="http://cxf.apache.org/configuration/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans  http://www.springframework.org/schema/beans/spring-beans.xsd   http://cxf.apache.org/transports/http/configuration   http://cxf.apache.org/schemas/configuration/http-conf.xsd           http://cxf.apache.org/configuration/security    http://cxf.apache.org/schemas/configuration/security.xsd">
+	<!-- -->
+	<!-- HTTP/S configuration for web clients -->
+	<!-- -->
+	<http:conduit name="*.http-conduit">
+		<http:client
+			ConnectionTimeout="3000000"
+			ReceiveTimeout="3000000" />
+		<http:tlsClientParameters disableCNCheck="true">
+			<sec:keyManagers keyPassword="changeit">
+				<sec:keyStore
+					type="pkcs12"
+					password="changeit"
+					file="target/test-classes/client.p12" />
+			</sec:keyManagers>
+			<sec:trustManagers>
+				<sec:keyStore
+					type="jks"
+					password="changeit"
+					file="target/test-classes/truststore.jks" />
+			</sec:trustManagers>
+			<sec:cipherSuites>
+				<sec:cipherSuite>TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384</sec:cipherSuite>
+				<sec:cipherSuite>TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384</sec:cipherSuite>
+				<sec:cipherSuite>TLS_DHE_RSA_WITH_AES_256_CBC_SHA256</sec:cipherSuite>
+				<sec:cipherSuite>TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384</sec:cipherSuite>
+				<sec:cipherSuite>TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384</sec:cipherSuite>
+				<sec:cipherSuite>TLS_DHE_RSA_WITH_AES_256_GCM_SHA384</sec:cipherSuite>
+			</sec:cipherSuites>
+		</http:tlsClientParameters>
+	</http:conduit>
 </beans>

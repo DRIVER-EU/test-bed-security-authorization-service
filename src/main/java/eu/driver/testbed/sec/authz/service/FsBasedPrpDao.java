@@ -205,8 +205,8 @@ final class FsBasedPrpDao implements PrpDao
 
 		if (!Files.isReadable(policiesDirectory) || !Files.isWritable(policiesDirectory))
 		{
-			throw new IllegalArgumentException("Policies directory '" + policiesDirectory + "' does not exist or not readable or not writeable: " + Files.isReadable(policiesDirectory) + ", "
-			        + Files.isWritable(policiesDirectory));
+			throw new IllegalArgumentException("Policies directory '" + policiesDirectory + "' does not exist or not readable/writeable: readable: " + Files.isReadable(policiesDirectory)
+			        + ", writable: " + Files.isWritable(policiesDirectory));
 		}
 
 		this.pdpInputPolicyFilenameSuffix = pdpInputPolicyFilenameSuffix;

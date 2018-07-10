@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.ow2.authzforce</groupId>
 		<artifactId>authzforce-ce-parent</artifactId>
-		<version>7.3.0</version>
+		<version>7.4.0</version>
 	</parent>
 	<groupId>eu.driver</groupId>
 	<artifactId>driver-testbed-sec-authz-service</artifactId>
@@ -30,10 +30,10 @@
 		<url>https://github.com/DRIVER-EU/test-bed-security-authorization-service</url>
 	</scm>
 	<properties>
-		<!-- Workaround CVE-2018-1305, CVE-2018-1304 until issue fixed: https://github.com/authzforce/restful-pdp/issues/3: force 1.5.11.RELEASE of spring-boot (cxf still depends on 1.5.10.RELEASE which depends 
-			indirectly on vulnerable Tomcat) -->
-		<spring.boot.version>1.5.11.RELEASE</spring.boot.version>
-		<docker.image.prefix>authzforce</docker.image.prefix>
+		<!-- Fix for CVE-2018-8014-->
+		<spring.boot.version>1.5.14.RELEASE</spring.boot.version>
+		<!-- <docker.image.prefix>authzforce</docker.image.prefix> -->
+		<docker.image.prefix>drivereu</docker.image.prefix>
 	</properties>
 	<repositories>
 		<repository>
@@ -77,7 +77,7 @@
 		<dependency>
 			<groupId>org.ow2.authzforce</groupId>
 			<artifactId>authzforce-ce-restful-pdp-jaxrs</artifactId>
-			<version>1.4.0</version>
+			<version>1.5.0</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -212,6 +212,30 @@
 						</property>
 					</properties>
 				</configuration>
+				<executions>
+					<execution>
+						<id>without-ssl</id>
+						<goals>
+							<goal>test</goal>
+						</goals>
+						<configuration>
+							<systemPropertyVariables>
+								<spring.profiles.active>default</spring.profiles.active>
+							</systemPropertyVariables>
+						</configuration>
+					</execution>
+					<execution>
+						<id>with-ssl</id>
+						<goals>
+							<goal>test</goal>
+						</goals>
+						<configuration>
+							<systemPropertyVariables>
+								<spring.profiles.active>ssl</spring.profiles.active>
+							</systemPropertyVariables>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

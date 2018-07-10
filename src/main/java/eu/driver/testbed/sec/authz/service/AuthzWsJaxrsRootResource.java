@@ -21,6 +21,7 @@ package eu.driver.testbed.sec.authz.service;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Paths;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -296,9 +297,10 @@ public class AuthzWsJaxrsRootResource
 		 * Policies directory
 		 */
 		/*
-		 * Remove the file: prefix for use with Path API
+		 * If we don't use URI before calling Paths.get(), this fails on Windows (string starting with /C:/... is not allowed by the Paths.get() API)
 		 */
-		final java.nio.file.Path policiesDir = Paths.get(policyLocationPatternAfterReplacement.substring(ResourceUtils.FILE_URL_PREFIX.length(), slashWildcardPatternIndex));
+		final URI policiesDirUri = URI.create(policyLocationPatternAfterReplacement.substring(0, slashWildcardPatternIndex));
+		final java.nio.file.Path policiesDir = Paths.get(policiesDirUri);
 
 		/*
 		 * Policy file suffix (part after wildcard(s))

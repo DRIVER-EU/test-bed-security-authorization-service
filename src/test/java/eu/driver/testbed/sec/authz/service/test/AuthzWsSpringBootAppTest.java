@@ -27,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -42,6 +43,8 @@ import org.junit.runner.RunWith;
 import org.ow2.authzforce.jaxrs.util.JsonRiJaxrsProvider;
 import org.ow2.authzforce.xacml.json.model.LimitsCheckingJSONObject;
 import org.ow2.authzforce.xacml.json.model.XacmlJsonUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -60,6 +63,8 @@ import eu.driver.testbed.sec.authz.service.DriverAccessPolicyUtils;
 @SpringBootTest(classes = AuthzWsSpringBootApp.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class AuthzWsSpringBootAppTest
 {
+	private static final Logger LOGGER = LoggerFactory.getLogger(AuthzWsSpringBootApp.class);
+
 	private static final int MAX_JSON_STRING_LENGTH = 100;
 
 	/*
@@ -122,13 +127,25 @@ public class AuthzWsSpringBootAppTest
 	{
 		final String scheme = tlsEnabled ? "https" : "http";
 		final int port = EXTERNAL_SERVER_PORT > 0 ? EXTERNAL_SERVER_PORT : localPort;
+		final String baseAddress = scheme + "://localhost:" + port + "/services";
+
+		final List<Object> providers = Collections.singletonList(new JsonRiJaxrsProvider());
+		papClient = WebClient.create(baseAddress, providers, "classpath:cxf-http-client.xml").path("authz").path("pap");
+		pdpClient = WebClient.create(baseAddress, providers, "classpath:cxf-http-client.xml").path("authz").path("pdp");
+
 		/*
-		 * HTTP Basic authentication
+		 * If TLS enabled, client certificate will be required when ssl profile enabled, else HTTP Basic
 		 */
-		final String authorizationHeader = "Basic " + org.apache.cxf.common.util.Base64Utility.encode("admin:admin".getBytes());
-		papClient = WebClient.create(scheme + "://localhost:" + port + "/services", Collections.singletonList(new JsonRiJaxrsProvider()), "classpath:cxf-http-client.xml").path("authz").path("pap")
-		        .header("Authorization", authorizationHeader);
-		pdpClient = WebClient.create(scheme + "://localhost:" + port + "/services", Collections.singletonList(new JsonRiJaxrsProvider()), "classpath:cxf-http-client.xml").path("authz").path("pdp");
+		LOGGER.debug("Client baseAdress: {}", baseAddress);
+
+		if (!tlsEnabled)
+		{
+			/*
+			 * HTTP Basic authentication
+			 */
+			final String authorizationHeader = "Basic " + org.apache.cxf.common.util.Base64Utility.encode("admin:admin".getBytes());
+			papClient.header("Authorization", authorizationHeader);
+		}
 	}
 
 	// @Test

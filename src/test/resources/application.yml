@@ -1,0 +1,43 @@
+cfg.dir: target/test-classes
+# Server HTTP port
+# Default server.port :  8080
+
+# JAX-RS server endpoint address (default is "/")
+#cxf.jaxrs.server.path: /
+# Do not use server.address to set service endpoint address as it is already used by Spring Boot
+spring.beans.conf: file:${cfg.dir}/spring-beans.xml
+
+# Disable as much DispatcherServlet features we don't need as possible
+spring.mvc.dispatch-trace-request: false
+spring.mvc.dispatch-options-request: false 
+spring.mvc.favicon.enabled: false # Whether to enable resolution of favicon.ico.
+spring.mvc.formcontent.putfilter.enabled: false
+spring.mvc.pathmatch.use-suffix-pattern: false
+spring.mvc.servlet.load-on-startup: -1
+spring.mvc.throw-exception-if-no-handler-found: true
+
+#
+spring.mvc.log-resolved-exception: true  
+
+# LOGGING
+logging.config: file:${cfg.dir}/logback.xml
+
+#
+server.ssl.enabled: false
+
+---
+spring:
+  profiles: ssl
+#server.port: 8443
+# Make sure sec:http/sec:intercept-url/@requires-channel: 'https' in spring-beans.xml
+server.ssl.enabled: true
+# For HTTPS (for production, you should change keypairs and passwords)
+server.ssl.key-store: file:${cfg.dir}/server.p12
+server.ssl.key-store-type: PKCS12
+server.ssl.key-store-password: changeit
+server.ssl.key-alias: server
+server.ssl.key-password: changeit
+server.ssl.trust-store: file:${cfg.dir}/truststore.jks
+server.ssl.trust-store-password: changeit
+server.ssl.trust-store-type: JKS
+server.ssl.client-auth: need
