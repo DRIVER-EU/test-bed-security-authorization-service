@@ -1,4 +1,4 @@
-FROM openjdk:8-jdk-alpine
+FROM openjdk:8-jre-alpine
 LABEL maintainer="Cyril Dangerville <http://scr.im/cdan>"
 LABEL org.label-schema.schema-version = "1.0"
 LABEL org.label-schema.vendor = "Thales Services"
