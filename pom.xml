@@ -30,10 +30,12 @@
 		<url>https://github.com/DRIVER-EU/test-bed-security-authorization-service</url>
 	</scm>
 	<properties>
-		<!-- Fix for CVE-2018-8014-->
+		<!-- Fix for CVE-2018-8014 -->
 		<spring.boot.version>1.5.14.RELEASE</spring.boot.version>
 		<docker.image.prefix>drivereu</docker.image.prefix>
 		<github.global.server>github</github.global.server>
+		<!-- Remove spring.version after update authzforce-ce-parent to 7.5.0 -->
+		<spring.version>4.3.18.RELEASE</spring.version>
 	</properties>
 	<repositories>
 		<repository>
@@ -42,6 +44,34 @@
 			<url>https://jitpack.io</url>
 		</repository>
 	</repositories>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-core</artifactId>
+				<version>${spring.version}</version>
+				<exclusions>
+					<exclusion>
+						<!-- Replaced by jcl-over-slf4j dependency for redirecting logs to slf4j, see http://www.slf4j.org/legacy.html -->
+						<artifactId>commons-logging</artifactId>
+						<groupId>commons-logging</groupId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-context</artifactId>
+				<version>${spring.version}</version>
+				<exclusions>
+					<exclusion>
+						<!-- Replaced by jcl-over-slf4j dependency for redirecting logs to slf4j, see http://www.slf4j.org/legacy.html -->
+						<artifactId>commons-logging</artifactId>
+						<groupId>commons-logging</groupId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 	<dependencies>
 		<dependency>
 			<groupId>org.freemarker</groupId>
