@@ -15,7 +15,7 @@
       file name: spring-core-4.3.17.RELEASE.jar,
       false positive for CVE-2018-1258
       ]]></notes>
-     <gav>org.springframework:spring-core:4.3.17.RELEASE</gav> 
+     <gav>org.springframework:spring-web:4.3.18.RELEASE</gav> 
      <cve>CVE-2018-1258</cve>
 </suppress>
 </suppressions>
