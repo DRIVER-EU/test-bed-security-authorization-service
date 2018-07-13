@@ -28,7 +28,7 @@ $ docker run -v /path/to/test-bed-security-authorization-service/docker/applicat
 ### Authentication
 Each request on URL path `/services/authz/pap` requires HTTP Basic authentication with test admin account: username `admin`, password `admin`.
 
-You can also enable SSL by modifying the file `application.properties` and setting the following properties:
+You can also enable SSL (with client certificate authentication) by modifying the file `application.properties` and setting the following properties:
 
 ```
 spring.profiles.active=ssl
@@ -85,9 +85,4 @@ Content-Type: */*
 Headers: {Accept=[application/json], Authorization=[Basic YWRtaW46YWRtaW4=]}
 ```
 
-### HTTPS
-It is possible to enable HTTPS by setting `server.ssl.enabled` to `true` in `docker/application.properties` file and `sec:http/sec:intercept-url/@requires-channel` attribute value to `https` in file `target/test-classes/spring-beans.xml`. Then stop/re-run the Docker as shown earlier.
-
-### TODO
-Use client certificate authentication
 
