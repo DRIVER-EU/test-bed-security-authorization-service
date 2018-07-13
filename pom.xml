@@ -1,7 +1,4 @@
-<project
-	xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.ow2.authzforce</groupId>
@@ -12,7 +9,7 @@
 	<artifactId>driver-testbed-sec-authz-service</artifactId>
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>DRIVER+ Testbed Security Service for Authorization (policy administration and decision, aka PAP and PDP in XACML standard)</description>
-	<version>1.0.1-SNAPSHOT</version>
+	<version>1.1.0</version>
 	<url>http://www.driver-project.eu/</url>
 	<developers>
 		<developer>
@@ -30,10 +27,12 @@
 		<url>https://github.com/DRIVER-EU/test-bed-security-authorization-service</url>
 	</scm>
 	<properties>
-		<!-- Fix for CVE-2018-8014-->
+		<!-- Fix for CVE-2018-8014 -->
 		<spring.boot.version>1.5.14.RELEASE</spring.boot.version>
 		<docker.image.prefix>drivereu</docker.image.prefix>
 		<github.global.server>github</github.global.server>
+		<!-- Remove spring.version after update authzforce-ce-parent to 7.5.0 -->
+		<spring.version>4.3.18.RELEASE</spring.version>
 	</properties>
 	<repositories>
 		<repository>
@@ -42,6 +41,34 @@
 			<url>https://jitpack.io</url>
 		</repository>
 	</repositories>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-core</artifactId>
+				<version>${spring.version}</version>
+				<exclusions>
+					<exclusion>
+						<!-- Replaced by jcl-over-slf4j dependency for redirecting logs to slf4j, see http://www.slf4j.org/legacy.html -->
+						<artifactId>commons-logging</artifactId>
+						<groupId>commons-logging</groupId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-context</artifactId>
+				<version>${spring.version}</version>
+				<exclusions>
+					<exclusion>
+						<!-- Replaced by jcl-over-slf4j dependency for redirecting logs to slf4j, see http://www.slf4j.org/legacy.html -->
+						<artifactId>commons-logging</artifactId>
+						<groupId>commons-logging</groupId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 	<dependencies>
 		<dependency>
 			<groupId>org.freemarker</groupId>
