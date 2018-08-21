@@ -88,6 +88,3 @@ Headers: {Accept=[application/json], Authorization=[Basic YWRtaW46YWRtaW4=]}
 ### HTTPS
 It is possible to enable HTTPS by setting `server.ssl.enabled` to `true` in `docker/application.properties` file and `sec:http/sec:intercept-url/@requires-channel` attribute value to `https` in file `target/test-classes/spring-beans.xml`. Then stop/re-run the Docker as shown earlier.
 
-### TODO
-Use client certificate authentication
-
