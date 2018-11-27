@@ -53,7 +53,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.FileSystemUtils;
 
 import eu.driver.testbed.sec.authz.service.AuthzWsSpringBootApp;
-import eu.driver.testbed.sec.authz.service.DriverAccessPolicyUtils;
+import eu.driver.testbed.sec.authz.service.DriverAccessPolicyHandler;
 
 /**
  * Test for CXF/JAX-RS-based REST profile implementation using XACML JSON Profile for payloads
@@ -217,7 +217,7 @@ public class AuthzWsSpringBootAppTest
 		final Path path = Paths.get("src/test/resources/samples/pap/topicX-access-policy.driver.json");
 		final String jsonStr = new String(Files.readAllBytes(path));
 		final JSONObject schemaValidDriverAccessPolicy = new JSONObject(jsonStr);
-		DriverAccessPolicyUtils.JSON_SCHEMA.validate(schemaValidDriverAccessPolicy);
+		DriverAccessPolicyHandler.DRIVER_ACCESS_POLICY_JSON_SCHEMA.validate(schemaValidDriverAccessPolicy);
 
 		final JSONObject actualResponse = setChildPolicy("resource.type=TOPIC", "resource.id", "TOPIC_A", schemaValidDriverAccessPolicy);
 		Assert.assertTrue("Invalid returned policy content (policy in response != policy in request)", actualResponse.similar(schemaValidDriverAccessPolicy));
@@ -240,7 +240,7 @@ public class AuthzWsSpringBootAppTest
 		final Path path2 = Paths.get("src/test/resources/samples/pap/topicX-access-policy2.driver.json");
 		final String jsonStr2 = new String(Files.readAllBytes(path2));
 		final JSONObject schemaValidDriverAccessPolicy2 = new JSONObject(jsonStr2);
-		DriverAccessPolicyUtils.JSON_SCHEMA.validate(schemaValidDriverAccessPolicy);
+		DriverAccessPolicyHandler.DRIVER_ACCESS_POLICY_JSON_SCHEMA.validate(schemaValidDriverAccessPolicy);
 		final JSONObject actualResponse2 = setChildPolicy("resource.type=TOPIC", "resource.id", "TOPIC_A", schemaValidDriverAccessPolicy2);
 		Assert.assertTrue("Invalid returned policy content (policy in response != policy in request)", actualResponse2.similar(schemaValidDriverAccessPolicy2));
 
@@ -294,6 +294,47 @@ public class AuthzWsSpringBootAppTest
 
 		final boolean childPolicyRefFound6 = verifyChildPolicyRef("resource.type=TOPIC", "resource.type=TOPIC#resource.id=TOPIC_B");
 		Assert.assertTrue("Child policy reference still in parent policy after DELETE operation", !childPolicyRefFound6);
+	}
+
+	/*
+	 * Policy with action different from special cases SUBSCRIBE/PUBLISH
+	 */
+	@Test
+	public void setChildPolicyWithOtherAction() throws IOException
+	{
+		final Path path = Paths.get("src/test/resources/samples/pap/topicX-access-policy3.driver.json");
+		final String jsonStr = new String(Files.readAllBytes(path));
+		final JSONObject schemaValidDriverAccessPolicy = new JSONObject(jsonStr);
+		DriverAccessPolicyHandler.DRIVER_ACCESS_POLICY_JSON_SCHEMA.validate(schemaValidDriverAccessPolicy);
+
+		final JSONObject actualResponse = setChildPolicy("resource.type=TOPIC", "resource.id", "TOPIC_C", schemaValidDriverAccessPolicy);
+		Assert.assertTrue("Invalid returned policy content (policy in response != policy in request)", actualResponse.similar(schemaValidDriverAccessPolicy));
+
+		/*
+		 * Make sure the new child policy is there
+		 */
+		final JSONObject actualChildPolicyContent = getChildPolicy("resource.type=TOPIC", "resource.id", "TOPIC_C");
+		Assert.assertTrue("Invalid returned policy content", actualChildPolicyContent.similar(schemaValidDriverAccessPolicy));
+
+		/*
+		 * Make sure the reference is added to the parent policy
+		 */
+		final boolean childPolicyRefFound = verifyChildPolicyRef("resource.type=TOPIC", "resource.type=TOPIC#resource.id=TOPIC_C");
+		Assert.assertTrue("Child policy reference not found in parent policy", childPolicyRefFound);
+
+		/*
+		 * Undo: remove child policy
+		 */
+		deleteChildPolicy("resource.type=TOPIC", "resource.id", "TOPIC_C");
+		try
+		{
+			getChildPolicy("resource.type=TOPIC", "resource.id", "TOPIC_C");
+			Assert.fail("Child policy still exists");
+		}
+		catch (final NotFoundException e)
+		{
+			// OK
+		}
 	}
 
 	@Test

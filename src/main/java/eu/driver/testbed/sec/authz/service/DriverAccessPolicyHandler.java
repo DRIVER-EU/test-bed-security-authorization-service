@@ -25,6 +25,7 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Optional;
 
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.loader.SchemaLoader;
@@ -35,7 +36,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
 
-import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateExceptionHandler;
@@ -44,22 +44,22 @@ import freemarker.template.TemplateExceptionHandler;
  * Driver-to-XACML JSON Policy conversion utilities
  *
  */
-public final class DriverAccessPolicyUtils
+public final class DriverAccessPolicyHandler
 {
-	private static final Logger LOGGER = LoggerFactory.getLogger(DriverAccessPolicyUtils.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(DriverAccessPolicyHandler.class);
 
 	/**
 	 * JSON schema for validating Driver+/JSON access policies (see driver-access-policy.schema), to be used by external libraries (like CXF JSON provider)
 	 */
-	public static final Schema JSON_SCHEMA;
+	public static final Schema DRIVER_ACCESS_POLICY_JSON_SCHEMA;
 
 	static
 	{
-		try (final Reader reader = new BufferedReader(new InputStreamReader(DriverAccessPolicyUtils.class.getResourceAsStream("access_policy.schema.json"), StandardCharsets.UTF_8)))
+		try (final Reader reader = new BufferedReader(new InputStreamReader(DriverAccessPolicyHandler.class.getResourceAsStream("access_policy.schema.json"), StandardCharsets.UTF_8)))
 		{
 			final JSONObject rawSchema = new JSONObject(new JSONTokener(reader));
 			// final SchemaLoader schemaLoader = schemaLoaderBuilder.schemaJson(rawSchema).build();
-			JSON_SCHEMA = SchemaLoader.load(rawSchema); // schemaLoader.load().build();
+			DRIVER_ACCESS_POLICY_JSON_SCHEMA = SchemaLoader.load(rawSchema); // schemaLoader.load().build();
 		}
 		catch (final IOException e)
 		{
@@ -68,19 +68,24 @@ public final class DriverAccessPolicyUtils
 
 	}
 
-	private static final String DRIVER_TO_XACML_JSON_POLICY_TMPL_FILENAME = "driver-to-xacml-json.ftl";
+	private static final String DEFAULT_DRIVER_TO_XACML_JSON_POLICY_TMPL_LOCATION = "classpath:driver-to-xacml-json.ftl";
 
-	private static final Template DRIVER_TO_XACML_JSON_POLICY_TMPL;
+	private final Template driverToXacmlJsonPolicyFtl;
 
-	static
+	/**
+	 * Creates an instance with an optional location to a customized transformation template (FreeMarker)
+	 * 
+	 * @param driverToXacmlJsonFtlLocation
+	 *            Spring-ResourceLoader-compatible location of a transformation template (FreeMarker)
+	 */
+	public DriverAccessPolicyHandler(final Optional<String> driverToXacmlJsonFtlLocation)
 	{
+		final String driverToXacmlJsonPolicyFtlLocation = driverToXacmlJsonFtlLocation.orElse(DEFAULT_DRIVER_TO_XACML_JSON_POLICY_TMPL_LOCATION);
+
 		// Create your Configuration instance, and specify if up to what FreeMarker
 		// version (here 2.3.27) do you want to apply the fixes that are not 100%
 		// backward-compatible. See the Configuration JavaDoc for details.
 		final Configuration xacmlReqTmplEngineCfg = new Configuration(Configuration.VERSION_2_3_23);
-		// Set the preferred charset template files are stored in. UTF-8 is
-		// a good choice in most applications:
-		xacmlReqTmplEngineCfg.setDefaultEncoding("UTF-8");
 
 		// Sets how errors will appear.
 		// During web page *development* TemplateExceptionHandler.HTML_DEBUG_HANDLER is
@@ -94,12 +99,12 @@ public final class DriverAccessPolicyUtils
 		// TemplateException-s.
 		// FREEMARKER_CFG.setWrapUncheckedExceptions(true);
 
-		final ClassTemplateLoader tmplLoader = new ClassTemplateLoader(DriverAccessPolicyUtils.class, "");
-		xacmlReqTmplEngineCfg.setTemplateLoader(tmplLoader);
+		xacmlReqTmplEngineCfg.setTemplateLoader(new SpringUrlTemplateLoader());
+		xacmlReqTmplEngineCfg.setLocalizedLookup(false);
 
 		try
 		{
-			DRIVER_TO_XACML_JSON_POLICY_TMPL = xacmlReqTmplEngineCfg.getTemplate(DRIVER_TO_XACML_JSON_POLICY_TMPL_FILENAME);
+			driverToXacmlJsonPolicyFtl = xacmlReqTmplEngineCfg.getTemplate(driverToXacmlJsonPolicyFtlLocation, StandardCharsets.UTF_8.displayName());
 		}
 		catch (final IOException e)
 		{
@@ -111,7 +116,7 @@ public final class DriverAccessPolicyUtils
 	 * Convert Driver access policy format to XACML/JSON format
 	 * 
 	 * @param schemaValidDriverAccessPolicy
-	 *            Driver acess policy assumed valid against {@link #JSON_SCHEMA}.
+	 *            Driver acess policy assumed valid against {@link #DRIVER_ACCESS_POLICY_JSON_SCHEMA}.
 	 * @param policyId
 	 *            policyId set in the resulting XACML/JSON policy
 	 * @param policyVersion
@@ -120,7 +125,7 @@ public final class DriverAccessPolicyUtils
 	 *            policy's Match/AttributeValue set in the resulting XACML/JSON policy's Target (Target contains a single Match)
 	 * @return XACML/JSON policy
 	 */
-	public static JSONObject toXacmlJsonPolicy(final JSONObject schemaValidDriverAccessPolicy, final String policyId, final String policyVersion, final String targetValue)
+	public JSONObject toXacmlJsonPolicy(final JSONObject schemaValidDriverAccessPolicy, final String policyId, final String policyVersion, final String targetValue)
 	{
 		/*
 		 * driverAccessPolicy assumed valid against JSON schema
@@ -137,7 +142,7 @@ public final class DriverAccessPolicyUtils
 		LOGGER.debug("Generating XACML/JSON policy from DRIVER access rules using template with input: {}", root);
 		try
 		{
-			DRIVER_TO_XACML_JSON_POLICY_TMPL.process(root, out);
+			driverToXacmlJsonPolicyFtl.process(root, out);
 		}
 		catch (final Exception e)
 		{
