@@ -35,12 +35,12 @@ spring.profiles.active=ssl
 server.ssl.enabled=true
 ```
 
-Once SSL is enabled, access to URL path `/services/authz/pap` requires authentication with a client certificate issued by the test CA (PKCS#12 keystore file is `ca.p12`) in the [test folder](src/test). You can use the example of client certificate [client.p12](src/test/resources) (PKCS#12 keystore file).
+Once SSL is enabled, access to URL path `/services/authz/pap` requires authentication with a client certificate issued by the test CA (PKCS#12 keystore file is `ca.p12`) in the [test folder](src/test). In this case, this replaces HTTP Basic Authentication. You can use the example of client certificate [client.p12](src/test/resources) (PKCS#12 keystore file).
 
 
 ### Create or Update the access policy for a given Kafka topic
 Create/update the access policy of a given topic (if the policy does not exist, it is created on the fly), say topic `Topic_A` with the HTTP request below (only important headers shown for conciseness, e.g.Content-Length header is omitted but required as usual):
-**Beware the Authorization header with value: `Basic xxx`, where `xxx` is the string (username:password) `admin:admin` encoded in base 64, according to HTTP Basic Authentication standard.**
+If SSL is not enabled, **beware the Authorization header with value: `Basic xxx`, where `xxx` is the string (username:password) `admin:admin` encoded in base 64, according to HTTP Basic Authentication standard.**
 
 ```
 Address: http://localhost:8080/services/authz/pap/policies/resource.type=TOPIC/policies;resource.id=Topic_A
