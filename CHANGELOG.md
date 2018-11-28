@@ -2,6 +2,11 @@
 All notable changes to this project are documented in this file following the [Keep a CHANGELOG](http://keepachangelog.com) conventions.
 
 
+## 1.2.0
+### Added
+- Possibility to override/customize by configuration the Freemarker template for Driver+-to-XACML-access-policy transformation (in Spring config file defined by application property 'spring.beans.conf', bean class 'AuthzWsJaxrsRootResource' has new constructor arg 'driverToXacmlJsonPolicyFtlLocation')
+
+
 ## 1.1.0
 ### Changed
 - Maven project's parent version: 7.4.0 
@@ -21,6 +26,7 @@ All notable changes to this project are documented in this file following the [K
 - #2: Automated build with Travis CI
 	- Automated Maven artifact deployment DRIVER-EU github repository
 	- Automated docker image deployment to drivereu organization on Docker Hub
+
 
 ## 1.0.0
 Initial release

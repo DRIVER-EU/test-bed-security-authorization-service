@@ -139,6 +139,8 @@ public class AuthzWsJaxrsRootResource
 	private final Pdp pdpJaxbConf;
 	private final DefaultEnvironmentProperties pdpEnvProps;
 	private final PrpDao prpDao;
+	private final DriverAccessPolicyHandler driverAccessPolicyHandler;
+
 	// private final Map<String, String> equalFunctionsByDatatype;
 	// private final DriverToXacmlJsonPolicyConverter driverToXacmlJsonPolicyConverter;
 	private transient volatile XacmlPdpResource pdpResource = null;
@@ -187,16 +189,18 @@ public class AuthzWsJaxrsRootResource
 	 *            location of XML catalog for resolving XSDs imported by the extension XSD specified as 'extensionXsdLocation' argument (may be null if 'extensionXsdLocation' is null)
 	 * @param xacmlJsonPolicyFilenameSuffix
 	 *            XACML/JSON filename suffix of policy files in policy repository
+	 * @param driverToXacmlJsonPolicyFtlLocation
+	 *            location of Driver+-to-XACML/JSON access policy transformation's Freemarker template
 	 * @throws java.lang.IllegalArgumentException
 	 *             if {@code pdpConf.getXacmlExpressionFactory() == null || pdpConf.getRootPolicyProvider() == null}
 	 * @throws java.io.IOException
 	 *             error closing {@code pdpConf.getRootPolicyProvider()} when static resolution is to be used
 	 * 
 	 */
-	public AuthzWsJaxrsRootResource(final Resource confLocation, final String catalogLocation, final String extensionXsdLocation,
-	        final String xacmlJsonPolicyFilenameSuffix/*
-	                                                   * , final Map<String, AttributeDesignatorType> attributeDictionary, final Map<String, String> equalFunctionsByDatatype
-	                                                   */) throws IllegalArgumentException, IOException
+	public AuthzWsJaxrsRootResource(final Resource confLocation, final String catalogLocation, final String extensionXsdLocation, final String xacmlJsonPolicyFilenameSuffix,
+	        final String driverToXacmlJsonPolicyFtlLocation/*
+	                                                        * , final Map<String, AttributeDesignatorType> attributeDictionary, final Map<String, String> equalFunctionsByDatatype
+	                                                        */) throws IllegalArgumentException, IOException
 	{
 		Preconditions.checkArgument(confLocation != null && catalogLocation != null
 		        && extensionXsdLocation != null /*
@@ -320,6 +324,7 @@ public class AuthzWsJaxrsRootResource
 		final PdpEngineConfiguration pdpEngineConf = new PdpEngineConfiguration(pdpJaxbConf, this.pdpEnvProps);
 		this.pdpResource = new XacmlPdpResource(pdpEngineConf);
 
+		this.driverAccessPolicyHandler = new DriverAccessPolicyHandler(Optional.ofNullable(driverToXacmlJsonPolicyFtlLocation));
 	}
 
 	/**
@@ -485,7 +490,7 @@ public class AuthzWsJaxrsRootResource
 			 * Convert to AuthzForce/XACML/JSON format, increase current policy version if already exists, else default: 1.0. childPolicyInDriverFormat is assumed validated against schema by
 			 * JsonRiJaxrsProvider in JAX-RS service configuration
 			 */
-			final JSONObject xacmlJsonPolicy = DriverAccessPolicyUtils.toXacmlJsonPolicy(validChildPolicyInDriverFormat, childPolicyId, newChildPolicyVersion, matrixArg.getValue());
+			final JSONObject xacmlJsonPolicy = driverAccessPolicyHandler.toXacmlJsonPolicy(validChildPolicyInDriverFormat, childPolicyId, newChildPolicyVersion, matrixArg.getValue());
 
 			/*
 			 * Validate result against schema

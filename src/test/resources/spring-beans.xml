@@ -117,6 +117,9 @@
 					<constructor-arg
 						name="xacmlJsonPolicyFilenameSuffix"
 						value=".xacml.json" />
+					<constructor-arg
+						name="driverToXacmlJsonPolicyFtlLocation"
+						value="file:${cfg.dir}/driver-to-xacml-json.ftl" />
 				</bean>
 			</jaxrs:serviceBeans>
 			<jaxrs:features>
@@ -141,7 +144,7 @@
 								value="#{T(org.ow2.authzforce.xacml.json.model.XacmlJsonUtils).REQUEST_SCHEMA}" />
 							<entry
 								key="rules"
-								value="#{T(eu.driver.testbed.sec.authz.service.DriverAccessPolicyUtils).JSON_SCHEMA}" />
+								value="#{T(eu.driver.testbed.sec.authz.service.DriverAccessPolicyHandler).DRIVER_ACCESS_POLICY_JSON_SCHEMA}" />
 						</util:map>
 					</constructor-arg>
 					<constructor-arg

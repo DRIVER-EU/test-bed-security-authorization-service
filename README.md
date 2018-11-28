@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/DRIVER-EU/test-bed-security-authorization-service.svg?branch=master)](https://travis-ci.org/DRIVER-EU/test-bed-security-authorization-service)
 
-# Testbed Security Service for Authorization
-REST service that provides access policy administration and evaluation to render a decision (Permit/Deny) for a given access request, aka *PAP* and *PDP* in [XACML](http://docs.oasis-open.org/xacml/3.0/xacml-3.0-core-spec-os-en.html) standard.
+# Test-bed Security Service for Authorization
+REST service that provides access policy administration and evaluation to render a decision (Permit/Deny) for a given access request, aka *PAP* (Policy Access Point) and *PDP* (Policy Decision Point) in [XACML](http://docs.oasis-open.org/xacml/3.0/xacml-3.0-core-spec-os-en.html) standard.
 
 ## System requirements
 * OS: Linux x86_64
@@ -28,7 +28,7 @@ $ docker run -v /path/to/test-bed-security-authorization-service/docker/applicat
 ### Authentication
 Each request on URL path `/services/authz/pap` requires HTTP Basic authentication with test admin account: username `admin`, password `admin`.
 
-You can also enable SSL by modifying the file `application.properties` and setting the following properties:
+You can also enable SSL (with client certificate authentication) by modifying the file `application.properties` and setting the following properties:
 
 ```
 spring.profiles.active=ssl
