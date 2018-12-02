@@ -57,7 +57,13 @@ import eu.driver.testbed.sec.authz.service.DriverAccessPolicyHandler;
 
 /**
  * Test for CXF/JAX-RS-based REST profile implementation using XACML JSON Profile for payloads
- * 
+ * <p>
+ * You can run this JUnit test class against a remote authorization service with the following arguments:
+ * <ul>
+ * <li>-Dauthz_service_test_ext_port=9443</li>
+ * <li>-Dspring.profiles.active=ssl</li>
+ * <li>-Dauthz_service_test_http_client_conf_dir=/path/to/conf/dir</li>
+ * </ul>
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = AuthzWsSpringBootApp.class, webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -77,7 +83,9 @@ public class AuthzWsSpringBootAppTest
 	/*
 	 * If port > 0, enable testing of an external server running on this port
 	 */
-	private static final int EXTERNAL_SERVER_PORT = Integer.parseInt(System.getProperty("eu.driver.testbed.sec.authz.service.test.ext.port", "-1"), 10);
+	private static final int EXTERNAL_SERVER_PORT = Integer.parseInt(System.getProperty("authz_service_test_ext_port", "-1"), 10);
+
+	private static final String CXF_HTTP_CLIENT_CONF_LOCATION = System.getProperty("authz_service_test_http_client_conf_dir", "target/test-classes");
 
 	@BeforeClass
 	public static void setup() throws IOException
@@ -130,8 +138,8 @@ public class AuthzWsSpringBootAppTest
 		final String baseAddress = scheme + "://localhost:" + port + "/services";
 
 		final List<Object> providers = Collections.singletonList(new JsonRiJaxrsProvider());
-		papClient = WebClient.create(baseAddress, providers, "classpath:cxf-http-client.xml").path("authz").path("pap");
-		pdpClient = WebClient.create(baseAddress, providers, "classpath:cxf-http-client.xml").path("authz").path("pdp");
+		papClient = WebClient.create(baseAddress, providers, CXF_HTTP_CLIENT_CONF_LOCATION + "/cxf-http-client.xml").path("authz").path("pap");
+		pdpClient = WebClient.create(baseAddress, providers, CXF_HTTP_CLIENT_CONF_LOCATION + "/cxf-http-client.xml").path("authz").path("pdp");
 
 		/*
 		 * If TLS enabled, client certificate will be required when ssl profile enabled, else HTTP Basic

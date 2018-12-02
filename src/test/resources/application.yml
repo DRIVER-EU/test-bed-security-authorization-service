@@ -1,5 +1,6 @@
 cfg.dir: target/test-classes
 # Server HTTP port
+# Port used for junit is random
 # Default server.port :  8080
 
 # JAX-RS server endpoint address (default is "/")
@@ -28,6 +29,7 @@ server.ssl.enabled: false
 ---
 spring:
   profiles: ssl
+# Port used for junit is random
 #server.port: 8443
 # Make sure sec:http/sec:intercept-url/@requires-channel: 'https' in spring-beans.xml
 server.ssl.enabled: true
