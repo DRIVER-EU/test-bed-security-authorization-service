@@ -1,16 +1,20 @@
 {
 	"rules": [
 		{
-			"subject": "clientID3",
+			"subject.id": "clientID1",
 			"permissions": [
 				{
 					"action": "PUBLISH",
 					"allow": true
+				},
+				{
+					"action": "SUBSCRIBE",
+					"allow": false
 				}
 			]
 		},
 		{
-			"subject": "clientID4",
+			"subject.id": "clientID2",
 			"permissions": [
 				{
 					"action": "SUBSCRIBE",

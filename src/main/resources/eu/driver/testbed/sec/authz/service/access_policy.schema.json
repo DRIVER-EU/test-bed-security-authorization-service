@@ -21,8 +21,13 @@
 		},
 		"Rule": {
 			"type": "object",
+			"description": "subject.id and subject.group are optional; if both values are undefined, the rule applies to any subject",
 			"properties": {
-				"subject": {
+				"subject.id": {
+					"type": "string"
+				},
+				"subject.group": {
+					"description": "For a subject that is a Kafka consumer, this should match the consumer group if any.",
 					"type": "string"
 				},
 				"permissions": {
@@ -35,7 +40,6 @@
 				}
 			},
 			"required": [
-				"subject",
 				"permissions"
 			],
 			"additionalProperties": false

@@ -1,0 +1,12 @@
+{
+	"rules": [
+		{
+			"permissions": [
+				{
+					"action": "READ",
+					"allow": true
+				}
+			]
+		}
+	]
+}

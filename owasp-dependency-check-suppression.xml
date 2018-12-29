@@ -26,4 +26,8 @@
 		<!--CVE being re-analyzed-->
 		<cve>CVE-2018-10237</cve>
 	</suppress>
+	<suppress>
+		<!--See issue #3 on Github-->
+		<cve>CVE-2018-8088</cve>
+	</suppress>
 </suppressions>

@@ -222,7 +222,7 @@ public class AuthzWsSpringBootAppTest
 	@Test
 	public void setAndDeleteChildPolicy() throws IOException
 	{
-		final Path path = Paths.get("src/test/resources/samples/pap/topicX-access-policy.driver.json");
+		final Path path = Paths.get("src/test/resources/samples/topic#+PUB-SUB#+SUB/pap/resource.type=TOPIC/TOPIC_A#policy.driver.json");
 		final String jsonStr = new String(Files.readAllBytes(path));
 		final JSONObject schemaValidDriverAccessPolicy = new JSONObject(jsonStr);
 		DriverAccessPolicyHandler.DRIVER_ACCESS_POLICY_JSON_SCHEMA.validate(schemaValidDriverAccessPolicy);
@@ -245,7 +245,7 @@ public class AuthzWsSpringBootAppTest
 		/*
 		 * Update again
 		 */
-		final Path path2 = Paths.get("src/test/resources/samples/pap/topicX-access-policy2.driver.json");
+		final Path path2 = Paths.get("src/test/resources/samples/topic#+WRITE#+READ#policy.driver.json");
 		final String jsonStr2 = new String(Files.readAllBytes(path2));
 		final JSONObject schemaValidDriverAccessPolicy2 = new JSONObject(jsonStr2);
 		DriverAccessPolicyHandler.DRIVER_ACCESS_POLICY_JSON_SCHEMA.validate(schemaValidDriverAccessPolicy);
@@ -310,7 +310,7 @@ public class AuthzWsSpringBootAppTest
 	@Test
 	public void setChildPolicyWithOtherAction() throws IOException
 	{
-		final Path path = Paths.get("src/test/resources/samples/pap/topicX-access-policy3.driver.json");
+		final Path path = Paths.get("src/test/resources/samples/topic#+WRITE#-READ#+WRITE#policy.driver.json");
 		final String jsonStr = new String(Files.readAllBytes(path));
 		final JSONObject schemaValidDriverAccessPolicy = new JSONObject(jsonStr);
 		DriverAccessPolicyHandler.DRIVER_ACCESS_POLICY_JSON_SCHEMA.validate(schemaValidDriverAccessPolicy);
@@ -345,39 +345,9 @@ public class AuthzWsSpringBootAppTest
 		}
 	}
 
-	@Test
-	public void testPdpRequest() throws IOException
+	private void testPdpRequest(final Path pdpReqRespDir) throws IOException
 	{
-		/*
-		 * Set the policy
-		 */
-		final Path path = Paths.get("src/test/resources/samples/pap/topicX-access-policy.driver.json");
-		final String jsonStr = new String(Files.readAllBytes(path));
-		final JSONObject schemaValidDriverAccessPolicy = new JSONObject(jsonStr);
-		setChildPolicy("resource.type=TOPIC", "resource.id", "TOPIC_A", schemaValidDriverAccessPolicy);
-
-		// Request body
-		try (final DirectoryStream<Path> dirStream = Files.newDirectoryStream(Paths.get("src/test/resources/samples/pdp")))
-		{
-			dirStream.forEach(dir -> {
-				if (Files.isDirectory(dir))
-				{
-					try
-					{
-						testPdpRequest(dir);
-					}
-					catch (final IOException e)
-					{
-						throw new RuntimeException(e);
-					}
-				}
-			});
-		}
-	}
-
-	private void testPdpRequest(final Path pdpDeniedRequestsDir) throws IOException
-	{
-		final Path reqLocation = pdpDeniedRequestsDir.resolve("Request.xacml.json");
+		final Path reqLocation = pdpReqRespDir.resolve("Request.xacml.json");
 		try (final Reader reqIn = Files.newBufferedReader(reqLocation))
 		{
 			final JSONObject jsonRequest = new LimitsCheckingJSONObject(reqIn, MAX_JSON_STRING_LENGTH, MAX_JSON_CHILDREN_COUNT, MAX_JSON_DEPTH);
@@ -389,7 +359,7 @@ public class AuthzWsSpringBootAppTest
 			XacmlJsonUtils.REQUEST_SCHEMA.validate(jsonRequest);
 
 			// expected response
-			final Path respLocation = pdpDeniedRequestsDir.resolve("Response.xacml.json");
+			final Path respLocation = pdpReqRespDir.resolve("Response.xacml.json");
 			try (final Reader respIn = Files.newBufferedReader(respLocation))
 			{
 				final JSONObject expectedResponse = new LimitsCheckingJSONObject(respIn, MAX_JSON_STRING_LENGTH, MAX_JSON_CHILDREN_COUNT, MAX_JSON_DEPTH);
@@ -402,12 +372,103 @@ public class AuthzWsSpringBootAppTest
 
 				// send request
 				final WebClient client = WebClient.fromClient(this.pdpClient, true);
+				LOGGER.info("Testing PDP request from file: {}", reqLocation);
 				final JSONObject actualResponse = client.type("application/json").accept("application/json").post(jsonRequest, JSONObject.class);
 
 				// check response
 				Assert.assertTrue(expectedResponse.similar(actualResponse));
 			}
 		}
+	}
+
+	private enum ResourceType
+	{
+		CLUSTER, GROUP, TOPIC
+	}
+
+	private void setChildPolicy(final Path papTestDir, final ResourceType resourceType) throws IOException
+	{
+		/*
+		 * 'pap' directory contains the 'resource.type={type}' directories with resource-type-specific policies
+		 */
+		final Path resourceTypeSpecificPoliciesDir = papTestDir.resolve("resource.type=" + resourceType);
+		if (!Files.exists(resourceTypeSpecificPoliciesDir))
+		{
+			return;
+		}
+
+		try (final DirectoryStream<Path> dirStream = Files.newDirectoryStream(resourceTypeSpecificPoliciesDir))
+		{
+			dirStream.forEach(policyFile -> {
+				if (Files.isRegularFile(policyFile))
+				{
+					/*
+					 * resource name is filename prefix before '#policy.driver.json' (19 chars)
+					 */
+					final String filename = policyFile.getFileName().toString();
+					final String resourceName = filename.substring(0, filename.length() - 19);
+					try
+					{
+						final String policyJsonStr = new String(Files.readAllBytes(policyFile));
+						final JSONObject schemaValidDriverAccessPolicy = new JSONObject(policyJsonStr);
+						setChildPolicy("resource.type=" + resourceType, "resource.id", resourceName, schemaValidDriverAccessPolicy);
+					}
+					catch (final IOException e)
+					{
+						throw new RuntimeException(e);
+					}
+				}
+			});
+		}
+	}
+
+	private void testPdp(final Path pdpTestDir) throws IOException
+	{
+		/*
+		 * pdpTestDir contains 'pap' directory with policies to be put on 'pap' endpoint, and 'pdp' directory with requests (with expected responses) to be posted on 'pdp' endpoint
+		 */
+		final Path papTestDir = pdpTestDir.resolve("pap");
+		for (final ResourceType resourceType : ResourceType.values())
+		{
+			setChildPolicy(papTestDir, resourceType);
+		}
+
+		// Requests
+		final Path pdpRequestsDir = pdpTestDir.resolve("pdp");
+		try (final DirectoryStream<Path> dirStream = Files.newDirectoryStream(pdpRequestsDir))
+		{
+			dirStream.forEach(pdpReqRespDir -> {
+				if (Files.isDirectory(pdpReqRespDir))
+				{
+					try
+					{
+						testPdpRequest(pdpReqRespDir);
+					}
+					catch (final IOException e)
+					{
+						throw new RuntimeException(e);
+					}
+				}
+			});
+		}
+	}
+
+	@Test
+	public void testPdp_topic_1PUB0SUB_1SUB() throws IOException
+	{
+		testPdp(Paths.get("src/test/resources/samples/topic#+PUB-SUB#+SUB"));
+	}
+
+	@Test
+	public void testPdp_topic_anyREAD() throws IOException
+	{
+		testPdp(Paths.get("src/test/resources/samples/topic#any+READ"));
+	}
+
+	@Test
+	public void testPdp_topic_group1WRITE() throws IOException
+	{
+		testPdp(Paths.get("src/test/resources/samples/topic#group1+READ"));
 	}
 
 	// public static void main(String... args) throws FileNotFoundException
