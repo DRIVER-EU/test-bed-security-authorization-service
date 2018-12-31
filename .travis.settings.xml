@@ -6,15 +6,4 @@
       <password>${env.CI_DEPLOY_PASSWORD}</password>
     </server>
   </servers>
-  <profiles>
-      <profile>
-        <id>default</id>
-        <activation>
-          <activeByDefault>true</activeByDefault>
-        </activation>
-        <properties>
-          <dockerfile.skip>true</dockerfile.skip>
-        </properties>
-      </profile>
-    </profiles>
 </settings>
