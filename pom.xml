@@ -29,7 +29,6 @@
 		<!-- Fix for CVE-2018-8014 -->
 		<spring.boot.version>1.5.14.RELEASE</spring.boot.version>
 		<docker.image.prefix>drivereu</docker.image.prefix>
-		<dockerfile.skip>true</dockerfile.skip>
 		<github.global.server>github</github.global.server>
 	</properties>
 	<repositories>
