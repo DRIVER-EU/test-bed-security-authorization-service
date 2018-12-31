@@ -1,9 +1,12 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.ow2.authzforce</groupId>
 		<artifactId>authzforce-ce-parent</artifactId>
-		<version>7.4.0</version>
+		<version>7.5.0</version>
 	</parent>
 	<groupId>eu.driver</groupId>
 	<artifactId>driver-testbed-sec-authz-service</artifactId>
@@ -14,8 +17,7 @@
 	<developers>
 		<developer>
 			<name>Cyril Dangerville</name>
-			<email>http://scr.im/cdan</email>
-			<organization>Thales Services</organization>
+			<organization>THALES</organization>
 			<organizationUrl>http://thalesgroup.com</organizationUrl>
 		</developer>
 	</developers>
@@ -31,8 +33,6 @@
 		<spring.boot.version>1.5.14.RELEASE</spring.boot.version>
 		<docker.image.prefix>drivereu</docker.image.prefix>
 		<github.global.server>github</github.global.server>
-		<!-- Remove spring.version after update authzforce-ce-parent to 7.5.0 -->
-		<spring.version>4.3.18.RELEASE</spring.version>
 	</properties>
 	<repositories>
 		<repository>
@@ -44,21 +44,9 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-core</artifactId>
-				<version>${spring.version}</version>
-				<exclusions>
-					<exclusion>
-						<!-- Replaced by jcl-over-slf4j dependency for redirecting logs to slf4j, see http://www.slf4j.org/legacy.html -->
-						<artifactId>commons-logging</artifactId>
-						<groupId>commons-logging</groupId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-context</artifactId>
-				<version>${spring.version}</version>
+				<groupId>com.github.everit-org.json-schema</groupId>
+				<artifactId>org.everit.json.schema</artifactId>
+				<version>1.6.1</version>
 				<exclusions>
 					<exclusion>
 						<!-- Replaced by jcl-over-slf4j dependency for redirecting logs to slf4j, see http://www.slf4j.org/legacy.html -->
@@ -104,7 +92,7 @@
 		<dependency>
 			<groupId>org.ow2.authzforce</groupId>
 			<artifactId>authzforce-ce-restful-pdp-jaxrs</artifactId>
-			<version>1.5.0</version>
+			<version>1.6.0</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -261,6 +249,7 @@
 					<redirectTestOutputToFile>false</redirectTestOutputToFile>
 					<systemPropertyVariables>
 						<javax.xml.accessExternalSchema>all</javax.xml.accessExternalSchema>
+						<org.ow2.authzforce.data.dir>${project.build.testOutputDirectory}/data</org.ow2.authzforce.data.dir>
 					</systemPropertyVariables>
 					<properties>
 						<property>
@@ -279,6 +268,7 @@
 						<configuration>
 							<systemPropertyVariables>
 								<spring.profiles.active>default</spring.profiles.active>
+								<org.ow2.authzforce.data.dir>${project.build.testOutputDirectory}/data</org.ow2.authzforce.data.dir>
 							</systemPropertyVariables>
 						</configuration>
 					</execution>
@@ -319,7 +309,7 @@
 				<artifactId>dockerfile-maven-plugin</artifactId>
 				<version>1.3.6</version>
 				<configuration>
-					<!-- <dockerDirectory>dockAer</dockerDirectory> -->
+					<!-- <dockerDirectory>docker</dockerDirectory> -->
 					<repository>${docker.image.prefix}/${project.artifactId}</repository>
 					<buildArgs>
 						<JAR_FILE>target/${project.build.finalName}.jar</JAR_FILE>
@@ -327,7 +317,7 @@
 					<forceTags>true</forceTags>
 					<imageTags>
 						<imageTag>${project.version}</imageTag>
-						<imageTag>latest</imageTag>
+						<!-- <imageTag>latest</imageTag> -->
 					</imageTags>
 				</configuration>
 			</plugin>

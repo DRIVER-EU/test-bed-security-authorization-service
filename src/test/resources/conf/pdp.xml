@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <pdp xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://authzforce.github.io/core/xmlns/pdp/6.0" version="6.0.0">
     <refPolicyProvider id="refPolicyprovider" xsi:type="StaticRefPolicyProvider" ignoreOldVersions="true">
-		<policyLocation>${PARENT_DIR}/policies/**.xacml.xml</policyLocation>
+    <!-- Default policyLocation's prefix used in Docker container (see docker/Dockerfile) -->
+		<policyLocation>file://${org.ow2.authzforce.data.dir!/opt/driver-testbed-sec-authz-service/data}/policies/**.xacml.xml</policyLocation>
 	</refPolicyProvider>
    <rootPolicyProvider id="rootPolicyProvider" xsi:type="StaticRefBasedRootPolicyProvider"><policyRef>root</policyRef></rootPolicyProvider>
    <ioProcChain>

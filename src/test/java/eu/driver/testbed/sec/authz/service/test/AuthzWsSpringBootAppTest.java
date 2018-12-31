@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012-2018 Thales Services SAS.
+ * Copyright (C) 2012-2018 THALES.
  *
  * This file is part of AuthzForce CE.
  *
@@ -63,6 +63,7 @@ import eu.driver.testbed.sec.authz.service.DriverAccessPolicyHandler;
  * <li>-Dauthz_service_test_ext_port=9443</li>
  * <li>-Dspring.profiles.active=ssl</li>
  * <li>-Dauthz_service_test_http_client_conf_dir=/path/to/conf/dir</li>
+ * <li>-Dorg.ow2.authzforce.data.dir=/path/to/project/target/test-classes/data</li>
  * </ul>
  */
 @RunWith(SpringRunner.class)
@@ -94,7 +95,8 @@ public class AuthzWsSpringBootAppTest
 		/*
 		 * Clean policies directory for testing (delete/recreate)
 		 */
-		final Path targetPrp = Paths.get("target/test-classes/policies");
+		final Path dataDir = Paths.get("target/test-classes/data");
+		final Path targetPrp = dataDir.resolve("policies");
 		if (Files.exists(targetPrp))
 		{
 			try (final Stream<Path> fileStream = Files.walk(targetPrp))
@@ -102,8 +104,12 @@ public class AuthzWsSpringBootAppTest
 				fileStream.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
 			}
 		}
+		else if (!Files.exists(dataDir))
+		{
+			Files.createDirectory(dataDir);
+		}
 
-		final Path srcPrp = Paths.get("src/test/resources/policies");
+		final Path srcPrp = Paths.get("src/test/resources/conf/default-policies");
 		FileSystemUtils.copyRecursively(srcPrp.toFile(), targetPrp.toFile());
 	}
 

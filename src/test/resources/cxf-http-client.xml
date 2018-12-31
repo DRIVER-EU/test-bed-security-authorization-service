@@ -23,7 +23,7 @@
 				<sec:keyStore
 					type="jks"
 					password="changeit"
-					file="#{systemProperties['authz_service_test_http_client_conf_dir'] ?: 'target/test-classes'}/truststore.jks" />
+					file="#{systemProperties['authz_service_test_http_client_conf_dir'] ?: 'target/test-classes'}/conf/truststore.jks" />
 			</sec:trustManagers>
 			<sec:cipherSuites>
 				<sec:cipherSuite>TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384</sec:cipherSuite>
