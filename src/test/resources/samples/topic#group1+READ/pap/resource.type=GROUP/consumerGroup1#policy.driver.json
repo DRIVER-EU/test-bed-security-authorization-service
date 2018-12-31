@@ -1,0 +1,13 @@
+{
+	"rules": [
+		{
+			"subject.id": "client1",
+			"permissions": [
+				{
+					"action": "READ",
+					"allow": true
+				}
+			]
+		}
+	]
+}

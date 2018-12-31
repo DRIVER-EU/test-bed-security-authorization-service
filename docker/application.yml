@@ -2,7 +2,7 @@
 # spring.profiles.active: ssl
 
 # Configuration directory
-cfg.dir: target/test-classes/conf
+cfg.dir: /opt/driver-testbed-sec-authz-service/conf
 
 # Server HTTP port
 # Default server.port: 8080
@@ -33,7 +33,7 @@ spring:
   profiles: ssl
 
 # For HTTPS (for production, you should change keypairs and passwords)
-# server.port: 8443
+server.port: 8443
 # If server.ssl.enabled=true, make sure sec:http/sec:intercept-url/@requires-channel = 'https' in spring-beans.xml
 server.ssl.enabled: true
 # For HTTPS (for production, you should change keypairs and passwords)

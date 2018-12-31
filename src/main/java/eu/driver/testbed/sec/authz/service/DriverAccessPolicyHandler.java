@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012-2018 Thales Services SAS.
+ * Copyright (C) 2012-2018 THALES.
  *
  * This file is part of AuthzForce CE.
  *
@@ -24,17 +24,22 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.loader.SchemaLoader;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -46,6 +51,51 @@ import freemarker.template.TemplateExceptionHandler;
  */
 public final class DriverAccessPolicyHandler
 {
+	public static final class DriverAccessRule
+	{
+		private static final List<String> SUBJECT_MATCH_ATT_IDENTIFIERS = Arrays.asList("subject.id", "subject.group");
+
+		/**
+		 * Subject attributes to be matched for the rule to apply
+		 */
+		private final Map<String, Object> subjectMatches = Maps.newHashMapWithExpectedSize(SUBJECT_MATCH_ATT_IDENTIFIERS.size());
+
+		/**
+		 * Permitted actions
+		 */
+		private final List<Object> permissions;
+
+		private DriverAccessRule(final JSONObject schemaValidJsonRuleJsonObject)
+		{
+			SUBJECT_MATCH_ATT_IDENTIFIERS.forEach(attId -> {
+				final String matchedVal = schemaValidJsonRuleJsonObject.optString(attId);
+				if (!matchedVal.isEmpty())
+				{
+					subjectMatches.put(attId, matchedVal);
+				}
+			});
+
+			permissions = schemaValidJsonRuleJsonObject.getJSONArray("permissions").toList();
+		}
+
+		/**
+		 * @return Subject attributes to be matched for the rule to apply
+		 */
+		public Map<String, Object> getSubjectMatches()
+		{
+			return subjectMatches;
+		}
+
+		/**
+		 * @return Permitted actions
+		 */
+		public List<Object> getPermissions()
+		{
+			return permissions;
+		}
+
+	}
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(DriverAccessPolicyHandler.class);
 
 	/**
@@ -135,9 +185,18 @@ public final class DriverAccessPolicyHandler
 		 * { "rules": [ { "subject": "clientID1", "permissions": [ { "action": "PUBLISH", "allow": true }, { "action": "SUBSCRIBE", "allow": false } ] }, { "subject": "clientID2", "permissions": [ {
 		 * "action": "SUBSCRIBE", "allow": true } ] } ] }
 		 */
+		final JSONArray jsonRules = schemaValidDriverAccessPolicy.getJSONArray("rules");
+		final List<DriverAccessRule> driverAccessRules = new ArrayList<>(jsonRules.length());
+		for (final Object jsonRule : jsonRules)
+		{
+			if (jsonRule instanceof JSONObject)
+			{
+				final DriverAccessRule accessRule = new DriverAccessRule((JSONObject) jsonRule);
+				driverAccessRules.add(accessRule);
+			}
+		}
 
-		final Map<String, Object> root = ImmutableMap.of("id", policyId, "version", policyVersion, "targetValue", targetValue, "driverAcrs",
-		        schemaValidDriverAccessPolicy.getJSONArray("rules").toList());
+		final Map<String, Object> root = ImmutableMap.of("id", policyId, "version", policyVersion, "targetValue", targetValue, "driverAccessRules", driverAccessRules);
 		final StringWriter out = new StringWriter();
 		LOGGER.debug("Generating XACML/JSON policy from DRIVER access rules using template with input: {}", root);
 		try

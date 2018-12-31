@@ -1,16 +1,16 @@
 {
 	"rules": [
 		{
-			"subject": "clientID5",
+			"subject.id": "clientID5",
 			"permissions": [
 				{
-					"action": "PUBLISH",
+					"action": "WRITE",
 					"allow": true
 				}
 			]
 		},
 		{
-			"subject": "clientID6",
+			"subject.id": "clientID6",
 			"permissions": [
 				{
 					"action": "READ",
@@ -19,7 +19,7 @@
 			]
 		},
 		{
-			"subject": "clientID7",
+			"subject.id": "clientID7",
 			"permissions": [
 				{
 					"action": "WRITE",

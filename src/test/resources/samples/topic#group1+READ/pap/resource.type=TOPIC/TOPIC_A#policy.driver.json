@@ -1,0 +1,13 @@
+{
+	"rules": [
+		{
+			"subject.group": "consumerGroup1",
+			"permissions": [
+				{
+					"action": "READ",
+					"allow": true
+				}
+			]
+		}
+	]
+}

@@ -1,0 +1,22 @@
+{
+	"rules": [
+		{
+			"subject.id": "clientID3",
+			"permissions": [
+				{
+					"action": "WRITE",
+					"allow": true
+				}
+			]
+		},
+		{
+			"subject.id": "clientID4",
+			"permissions": [
+				{
+					"action": "READ",
+					"allow": true
+				}
+			]
+		}
+	]
+}
