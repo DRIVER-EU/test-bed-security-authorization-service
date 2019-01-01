@@ -5,14 +5,16 @@ LABEL org.label-schema.vendor = "THALES"
 LABEL org.label-schema.name="DRIVER+ EU Project - Testbed Authorization Service"
 # LABEL org.label-schema.description=""
 
+VOLUME /tmp
+
 COPY src/test/resources /opt/driver-testbed-sec-authz-service
 COPY docker/application.yml /application.yml
-
-VOLUME /tmp
-# Inside the container, copy the default policies to the folder that matches policyLocation's folder in conf/pdp.xml (missing directories in the path are created
-RUN cp -r /opt/driver-testbed-sec-authz-service/conf/default-policies /opt/driver-testbed-sec-authz-service/data/policies
 ARG JAR_FILE
 COPY ${JAR_FILE} app.jar
+
+# Inside the container, copy the default policies to the folder that matches policyLocation's folder in conf/pdp.xml (missing directories in the path are created)
+RUN cp -r /opt/driver-testbed-sec-authz-service/conf/default-policies /opt/driver-testbed-sec-authz-service/data/policies
+
 
 EXPOSE 8080
 EXPOSE 8443
