@@ -98,6 +98,14 @@
 			</core:properties>
 		</core:bus>
 
+		<bean id="driverAccessPolicySchema"
+			class="eu.driver.testbed.sec.authz.service.DriverAccessPolicyHandler"
+			factory-method="newJsonSchema">
+			<constructor-arg
+				name="schemaLocation"
+				value="file:${cfg.dir}/driver_access_policy.schema.json" />
+		</bean>
+
 		<!-- <jaxrs:server depends-on="ClientAuthHttpsSettings" address="https://localhost:${testutil.ports.PdpServer}/authzforce-ce"> -->
 		<jaxrs:server
 			id="tazService"
@@ -117,6 +125,9 @@
 					<constructor-arg
 						name="xacmlJsonPolicyFilenameSuffix"
 						value=".xacml.json" />
+					<constructor-arg
+						name="driverAccessPolicyJsonSchema"
+						ref="driverAccessPolicySchema" />
 					<constructor-arg
 						name="driverToXacmlJsonPolicyFtlLocation"
 						value="file:${cfg.dir}/driver-to-xacml-json.ftl" />
@@ -144,7 +155,7 @@
 								value="#{T(org.ow2.authzforce.xacml.json.model.XacmlJsonUtils).REQUEST_SCHEMA}" />
 							<entry
 								key="rules"
-								value="#{T(eu.driver.testbed.sec.authz.service.DriverAccessPolicyHandler).DRIVER_ACCESS_POLICY_JSON_SCHEMA}" />
+								value-ref="driverAccessPolicySchema" />
 						</util:map>
 					</constructor-arg>
 					<constructor-arg

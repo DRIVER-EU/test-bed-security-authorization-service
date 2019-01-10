@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012-2018 THALES.
+ * Copyright (C) 2012-2019 THALES.
  *
  * This file is part of AuthzForce CE.
  *
@@ -18,9 +18,14 @@
  */
 package eu.driver.testbed.sec.authz.service.test;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,12 +39,16 @@ import java.util.stream.StreamSupport;
 import javax.ws.rs.NotFoundException;
 
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.everit.json.schema.Schema;
+import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.ow2.authzforce.core.pdp.api.value.X500NameValue;
 import org.ow2.authzforce.jaxrs.util.JsonRiJaxrsProvider;
 import org.ow2.authzforce.xacml.json.model.LimitsCheckingJSONObject;
 import org.ow2.authzforce.xacml.json.model.XacmlJsonUtils;
@@ -51,9 +60,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.FileSystemUtils;
+import org.springframework.util.ResourceUtils;
 
 import eu.driver.testbed.sec.authz.service.AuthzWsSpringBootApp;
-import eu.driver.testbed.sec.authz.service.DriverAccessPolicyHandler;
 
 /**
  * Test for CXF/JAX-RS-based REST profile implementation using XACML JSON Profile for payloads
@@ -87,6 +96,32 @@ public class AuthzWsSpringBootAppTest
 	private static final int EXTERNAL_SERVER_PORT = Integer.parseInt(System.getProperty("authz_service_test_ext_port", "-1"), 10);
 
 	private static final String CXF_HTTP_CLIENT_CONF_LOCATION = System.getProperty("authz_service_test_http_client_conf_dir", "target/test-classes");
+
+	private static final Schema DRIVER_ACCESS_POLICY_JSON_SCHEMA;
+	static
+	{
+
+		final File schemaFile;
+		try
+		{
+			schemaFile = ResourceUtils.getFile("classpath:conf/driver_access_policy.schema.json");
+		}
+		catch (final FileNotFoundException e)
+		{
+			throw new RuntimeException("Error loading JSON schema of DRIVER's access policy", e);
+		}
+
+		try (final Reader reader = new BufferedReader(new InputStreamReader(new FileInputStream(schemaFile), StandardCharsets.UTF_8)))
+		{
+			final JSONObject rawSchema = new JSONObject(new JSONTokener(reader));
+			// final SchemaLoader schemaLoader = schemaLoaderBuilder.schemaJson(rawSchema).build();
+			DRIVER_ACCESS_POLICY_JSON_SCHEMA = SchemaLoader.load(rawSchema); // schemaLoader.load().build();
+		}
+		catch (final IOException e)
+		{
+			throw new RuntimeException("Error loading JSON schema of DRIVER's access policy", e);
+		}
+	}
 
 	@BeforeClass
 	public static void setup() throws IOException
@@ -231,7 +266,7 @@ public class AuthzWsSpringBootAppTest
 		final Path path = Paths.get("src/test/resources/samples/topic#+PUB-SUB#+SUB/pap/resource.type=TOPIC/TOPIC_A#policy.driver.json");
 		final String jsonStr = new String(Files.readAllBytes(path));
 		final JSONObject schemaValidDriverAccessPolicy = new JSONObject(jsonStr);
-		DriverAccessPolicyHandler.DRIVER_ACCESS_POLICY_JSON_SCHEMA.validate(schemaValidDriverAccessPolicy);
+		DRIVER_ACCESS_POLICY_JSON_SCHEMA.validate(schemaValidDriverAccessPolicy);
 
 		final JSONObject actualResponse = setChildPolicy("resource.type=TOPIC", "resource.id", "TOPIC_A", schemaValidDriverAccessPolicy);
 		Assert.assertTrue("Invalid returned policy content (policy in response != policy in request)", actualResponse.similar(schemaValidDriverAccessPolicy));
@@ -254,7 +289,7 @@ public class AuthzWsSpringBootAppTest
 		final Path path2 = Paths.get("src/test/resources/samples/topic#+WRITE#+READ#policy.driver.json");
 		final String jsonStr2 = new String(Files.readAllBytes(path2));
 		final JSONObject schemaValidDriverAccessPolicy2 = new JSONObject(jsonStr2);
-		DriverAccessPolicyHandler.DRIVER_ACCESS_POLICY_JSON_SCHEMA.validate(schemaValidDriverAccessPolicy);
+		DRIVER_ACCESS_POLICY_JSON_SCHEMA.validate(schemaValidDriverAccessPolicy);
 		final JSONObject actualResponse2 = setChildPolicy("resource.type=TOPIC", "resource.id", "TOPIC_A", schemaValidDriverAccessPolicy2);
 		Assert.assertTrue("Invalid returned policy content (policy in response != policy in request)", actualResponse2.similar(schemaValidDriverAccessPolicy2));
 
@@ -319,7 +354,7 @@ public class AuthzWsSpringBootAppTest
 		final Path path = Paths.get("src/test/resources/samples/topic#+WRITE#-READ#+WRITE#policy.driver.json");
 		final String jsonStr = new String(Files.readAllBytes(path));
 		final JSONObject schemaValidDriverAccessPolicy = new JSONObject(jsonStr);
-		DriverAccessPolicyHandler.DRIVER_ACCESS_POLICY_JSON_SCHEMA.validate(schemaValidDriverAccessPolicy);
+		DRIVER_ACCESS_POLICY_JSON_SCHEMA.validate(schemaValidDriverAccessPolicy);
 
 		final JSONObject actualResponse = setChildPolicy("resource.type=TOPIC", "resource.id", "TOPIC_C", schemaValidDriverAccessPolicy);
 		Assert.assertTrue("Invalid returned policy content (policy in response != policy in request)", actualResponse.similar(schemaValidDriverAccessPolicy));
@@ -477,6 +512,12 @@ public class AuthzWsSpringBootAppTest
 		testPdp(Paths.get("src/test/resources/samples/topic#group1+READ"));
 	}
 
+	@Test
+	public void testPdp_group_x500Name_READ() throws IOException
+	{
+		testPdp(Paths.get("src/test/resources/samples/group#x500Name+READ"));
+	}
+
 	// public static void main(String... args) throws FileNotFoundException
 	// {
 	// final String reqLocation = "src/test/resources/Request.json";
@@ -485,4 +526,9 @@ public class AuthzWsSpringBootAppTest
 	// final JSONObject catObj = jsonRequest.getJSONObject("Request").getJSONArray("Category").getJSONObject(0);
 	// Xacml3JsonUtils.REQUEST_SCHEMA.validate(catObj);
 	// }
+
+	public static void main(final String... args)
+	{
+		System.out.println(new X500NameValue(""));
+	}
 }

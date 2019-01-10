@@ -27,27 +27,55 @@
 					"version": "1.0",
 					<#if subjectMatchPresent>
 					"target": [
+						<#list driverAccessRule.subjectMatches as attributeId, attributeValue>
 						[
 							[
-								<#list driverAccessRule.subjectMatches as attributeId, attributeValue>
-									{
-										"matchFunction": "urn:oasis:names:tc:xacml:1.0:function:string-equal",
-										"value": "${attributeValue}",
-										"attributeDesignator": {
-											"category": "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject",
-											"id": "<#switch attributeId>
-											<#case "subject.id">urn:oasis:names:tc:xacml:1.0:subject:subject-id<#break>
-									  		<#case "subject.group">urn:thalesgroup:xacml:group-id<#break>
-									  		<#default>${attributeId}<#break>
-											</#switch>",
-											"dataType": "http://www.w3.org/2001/XMLSchema#string",
-											"mustBePresent": false
-										}
-									}
-									<#sep>,</#sep>
-								</#list>
+								
+								{
+									"value": "${attributeValue}",
+									"attributeDesignator": {
+										"category": "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject",
+										<#switch attributeId>
+											<#case "subject.id">
+										"id": "urn:oasis:names:tc:xacml:1.0:subject:subject-id",
+										"dataType": "urn:oasis:names:tc:xacml:1.0:data-type:x500Name",
+										"mustBePresent": false
+									},
+									"matchFunction": "urn:oasis:names:tc:xacml:1.0:function:x500Name-equal"
+								}
+							],
+							[
+								{
+								<#-- subject.id is a certificate subject DN that may be in LDAP DN order or X.500 order (reverse). We must support both. -->
+									value": "${attributeValue?split(",")?reverse?join(",")}",
+									"attributeDesignator": {
+										"category": "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject",
+										"id": "urn:oasis:names:tc:xacml:1.0:subject:subject-id",
+										"dataType": "urn:oasis:names:tc:xacml:1.0:data-type:x500Name",
+										"mustBePresent": false
+									},
+									"matchFunction": "urn:oasis:names:tc:xacml:1.0:function:x500Name-equal"
+											<#break>
+									  		<#case "subject.group">
+										"id":"urn:thalesgroup:xacml:group-id",
+										"dataType": "http://www.w3.org/2001/XMLSchema#string",
+										"mustBePresent": false
+									},
+									"matchFunction": "urn:oasis:names:tc:xacml:1.0:function:string-equal"
+									  		<#break>
+									  		<#default>
+							  			"id": "${attributeId}",
+							  			"dataType": "http://www.w3.org/2001/XMLSchema#string",
+							  			"mustBePresent": false
+							  		},
+							  		"matchFunction": "urn:oasis:names:tc:xacml:1.0:function:string-equal"
+									  		<#break>
+										</#switch>
+								}
 							]
 						]
+							<#sep>,</#sep>
+						</#list>
 					],
 					</#if>
 					"combiningAlgId": "urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable",

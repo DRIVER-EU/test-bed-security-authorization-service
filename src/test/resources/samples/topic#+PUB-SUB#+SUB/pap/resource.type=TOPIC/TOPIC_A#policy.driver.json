@@ -1,7 +1,7 @@
 {
 	"rules": [
 		{
-			"subject.id": "clientID1",
+			"subject.id": "CN=ClientID1",
 			"permissions": [
 				{
 					"action": "PUBLISH",
@@ -14,7 +14,7 @@
 			]
 		},
 		{
-			"subject.id": "clientID2",
+			"subject.id": "CN=ClientID2",
 			"permissions": [
 				{
 					"action": "SUBSCRIBE",

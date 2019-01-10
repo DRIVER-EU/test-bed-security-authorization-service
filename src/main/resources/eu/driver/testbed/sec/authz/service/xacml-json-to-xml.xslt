@@ -41,7 +41,22 @@
 						<xacml:AllOf>
 							<xsl:for-each select="map">
 								<xacml:Match MatchId="{string[@key='matchFunction']}">
-									<xacml:AttributeValue DataType="{map[@key='attributeDesignator']/string[@key='dataType']}">
+									<xacml:AttributeValue>
+										<xsl:attribute name="DataType">
+									<xsl:choose>
+									<!-- AttributeValue's datatype is the same as the AttributeDesignator/Selector's except for certain functions -->
+									<xsl:when test="string[@key='matchFunction'] = 'urn:oasis:names:tc:xacml:3.0:function:anyURI-starts-with'">http://www.w3.org/2001/XMLSchema#string</xsl:when>
+									<xsl:when test="string[@key='matchFunction'] = 'urn:oasis:names:tc:xacml:3.0:function:anyURI-ends-with'">http://www.w3.org/2001/XMLSchema#string</xsl:when>
+									<xsl:when test="string[@key='matchFunction'] = 'urn:oasis:names:tc:xacml:3.0:function:anyURI-contains'">http://www.w3.org/2001/XMLSchema#string</xsl:when>
+									<xsl:when test="string[@key='matchFunction'] = 'urn:oasis:names:tc:xacml:2.0:function:anyURI-regexp-match'">http://www.w3.org/2001/XMLSchema#string</xsl:when>
+									<xsl:when test="string[@key='matchFunction'] = 'urn:oasis:names:tc:xacml:2.0:function:ipAddress-regexp-match'">http://www.w3.org/2001/XMLSchema#string</xsl:when>
+									<xsl:when test="string[@key='matchFunction'] = 'urn:oasis:names:tc:xacml:2.0:function:dnsName-regexp-match'">http://www.w3.org/2001/XMLSchema#string</xsl:when>
+									<xsl:when test="string[@key='matchFunction'] = 'urn:oasis:names:tc:xacml:2.0:function:rfc822Name-regexp-match'">http://www.w3.org/2001/XMLSchema#string</xsl:when>
+									<xsl:when test="string[@key='matchFunction'] = 'urn:oasis:names:tc:xacml:2.0:function:x500Name-regexp-match'">http://www.w3.org/2001/XMLSchema#string</xsl:when>
+									<xsl:when test="string[@key='matchFunction'] = 'urn:oasis:names:tc:xacml:1.0:function:rfc822Name-match'">http://www.w3.org/2001/XMLSchema#string</xsl:when>
+									<xsl:otherwise>{map[@key='attributeDesignator']/string[@key='dataType']}</xsl:otherwise>
+									</xsl:choose>
+									</xsl:attribute>
 										<xsl:value-of select="string[@key='value']" />
 									</xacml:AttributeValue>
 									<!-- TODO: support AttributeSelector -->

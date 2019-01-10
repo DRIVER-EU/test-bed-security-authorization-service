@@ -22,8 +22,8 @@
 		"policies": [
 			{
 				"policy": {
-				"description": "Anonymous access to Confluent metrics, Confluent Schema Registry and Kafa Connect's configuration, offset and status storage topics (set by CONNECT_CONFIG_STORAGE_TOPIC, CONNECT_OFFSET_STORAGE_TOPIC, CONNECT_STATUS_STORAGE_TOPIC)",
-					"id": "resource.type=TOPIC#resource.id={_schemas,docker-connect-configs,docker-connect-offsets,docker-connect-status}",
+					"description": "Anonymous access to Confluent metrics, Confluent Schema Registry and Kafa Connect's configuration, offset and status storage topics (set by CONNECT_CONFIG_STORAGE_TOPIC, CONNECT_OFFSET_STORAGE_TOPIC, CONNECT_STATUS_STORAGE_TOPIC)",
+					"id": "resource.type=TOPIC#resource.id={_schemas}",
 					"version": "1.0",
 					"target": [
 						[
@@ -38,7 +38,41 @@
 										"mustBePresent": true
 									}
 								}
-							],
+							]
+						]
+					],
+					"combiningAlgId": "urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable",
+					"rules": [
+						{
+							"id": "subject.id={ANONYMOUS} may do anything",
+							"effect": "Permit",
+							"target": [
+								[
+									[
+										{
+											"matchFunction": "urn:oasis:names:tc:xacml:1.0:function:x500Name-equal",
+											"value": "",
+											"attributeDesignator": {
+												"category": "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject",
+												"id": "urn:oasis:names:tc:xacml:1.0:subject:subject-id",
+												"dataType": "urn:oasis:names:tc:xacml:1.0:data-type:x500Name",
+												"mustBePresent": false
+											}
+										}
+									]
+								]
+							]
+						}
+					]
+				}
+			},
+			{
+				"policy": {
+					"description": "Read-only access via Docker-local PLAINTEXT listener (unauthenticated) to Confluent metrics and Kafa Connect's configuration, offset and status storage topics (set by CONNECT_CONFIG_STORAGE_TOPIC, CONNECT_OFFSET_STORAGE_TOPIC, CONNECT_STATUS_STORAGE_TOPIC)",
+					"id": "resource.type=TOPIC#resource.id={docker-connect-configs,docker-connect-offsets,docker-connect-status}",
+					"version": "1.0",
+					"target": [
+						[
 							[
 								{
 									"matchFunction": "urn:oasis:names:tc:xacml:1.0:function:string-equal",
@@ -80,9 +114,23 @@
 					"combiningAlgId": "urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable",
 					"rules": [
 						{
-							"id": "action.id={READ,DESCRIBE,DESCRIBE_CONFIGS}",
+							"id": "subject.id={ANONYMOUS} AND action.id={READ,DESCRIBE,DESCRIBE_CONFIGS}",
 							"effect": "Permit",
 							"target": [
+								[
+									[
+										{
+											"matchFunction": "urn:oasis:names:tc:xacml:1.0:function:x500Name-equal",
+											"value": "",
+											"attributeDesignator": {
+												"category": "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject",
+												"id": "urn:oasis:names:tc:xacml:1.0:subject:subject-id",
+												"dataType": "urn:oasis:names:tc:xacml:1.0:data-type:x500Name",
+												"mustBePresent": false
+											}
+										}
+									]
+								],
 								[
 									[
 										{
@@ -128,7 +176,7 @@
 			},
 			{
 				"policy": {
-				"description": "Anonymous WRITE/DESCRIBE on topic __confluent.support.metrics",
+					"description": "Read-only access via Docker-local PLAINTEXT listener WRITE/DESCRIBE on topic '__confluent.support.metrics'",
 					"id": "resource.type=TOPIC#resource.id=__confluent.support.metrics",
 					"version": "1.0",
 					"target": [
@@ -150,9 +198,23 @@
 					"combiningAlgId": "urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable",
 					"rules": [
 						{
-							"id": "action.id={WRITE,DESCRIBE}",
+							"id": "subject.id={ANONYMOUS} AND action.id={WRITE,DESCRIBE}",
 							"effect": "Permit",
 							"target": [
+								[
+									[
+										{
+											"matchFunction": "urn:oasis:names:tc:xacml:1.0:function:x500Name-equal",
+											"value": "",
+											"attributeDesignator": {
+												"category": "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject",
+												"id": "urn:oasis:names:tc:xacml:1.0:subject:subject-id",
+												"dataType": "urn:oasis:names:tc:xacml:1.0:data-type:x500Name",
+												"mustBePresent": false
+											}
+										}
+									]
+								],
 								[
 									[
 										{
@@ -186,7 +248,7 @@
 			},
 			{
 				"policy": {
-				"description": "Permit all on DRIVER+ system topics: system_*",
+					"description": "Permit all on DRIVER+ system topics: system_*",
 					"id": "resource.type=TOPIC#resource.id=system_*",
 					"version": "1.0",
 					"target": [
@@ -210,6 +272,53 @@
 						{
 							"id": "permit-all",
 							"effect": "Permit"
+						}
+					]
+				}
+			},
+			{
+				"policy": {
+					"description": "Any authenticated user can DESCRIBE any topic, i.e. read topic metadata/offset (but not necessarily READ topic, i.e. read topic data), this policy is necessary for consumer group-based permission to work, because of issue #7 mentioned on Github source code repository",
+					"id": "TLS_AUTH_USERS_MAY_DESCRIBE_any_TOPIC",
+					"version": "1.0",
+					"target": [
+						[
+							[
+								{
+									"matchFunction": "urn:oasis:names:tc:xacml:2.0:function:x500Name-regexp-match",
+									"value": ".+",
+									"attributeDesignator": {
+										"category": "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject",
+										"id": "urn:oasis:names:tc:xacml:1.0:subject:subject-id",
+										"dataType": "urn:oasis:names:tc:xacml:1.0:data-type:x500Name",
+										"mustBePresent": false
+									}
+								}
+							]
+						]
+					],
+					"combiningAlgId": "urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable",
+					"rules": [
+						{
+							"id": "action.id=DESCRIBE",
+							"description": "Necessary because of issue with Kafka clients trying to get topic metadata/offsets before joining their consumier group",
+							"effect": "Permit",
+							"target": [
+								[
+									[
+										{
+											"matchFunction": "urn:oasis:names:tc:xacml:1.0:function:string-equal",
+											"value": "DESCRIBE",
+											"attributeDesignator": {
+												"category": "urn:oasis:names:tc:xacml:3.0:attribute-category:action",
+												"id": "urn:oasis:names:tc:xacml:1.0:action:action-id",
+												"dataType": "http://www.w3.org/2001/XMLSchema#string",
+												"mustBePresent": true
+											}
+										}
+									]
+								]
+							]
 						}
 					]
 				}
