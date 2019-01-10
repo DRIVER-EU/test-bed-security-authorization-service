@@ -42,12 +42,16 @@
 										"mustBePresent": false
 									},
 									"matchFunction": "urn:oasis:names:tc:xacml:1.0:function:x500Name-equal"
+									
+									<#-- subject.id is a certificate subject DN that may be in LDAP DN order or X.500 order (reverse). We must support both. -->
+									<#assign subjectIdRdns = attributeValue?split(",") >
+									<#if subjectIdRdns?size gt 1 >
 								}
 							],
 							[
 								{
-								<#-- subject.id is a certificate subject DN that may be in LDAP DN order or X.500 order (reverse). We must support both. -->
-									value": "${attributeValue?split(",")?reverse?join(",")}",
+								
+									"value": "${subjectIdRdns?reverse?join(",")}",
 									"attributeDesignator": {
 										"category": "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject",
 										"id": "urn:oasis:names:tc:xacml:1.0:subject:subject-id",
@@ -55,6 +59,7 @@
 										"mustBePresent": false
 									},
 									"matchFunction": "urn:oasis:names:tc:xacml:1.0:function:x500Name-equal"
+									</#if>
 											<#break>
 									  		<#case "subject.group">
 										"id":"urn:thalesgroup:xacml:group-id",
