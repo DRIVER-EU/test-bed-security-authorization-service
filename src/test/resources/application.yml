@@ -1,5 +1,5 @@
 # Active profile
-# spring.profiles.active: ssl
+# spring.profiles.active: default
 
 # Configuration directory
 cfg.dir: target/test-classes/conf
@@ -25,18 +25,17 @@ spring.mvc.log-resolved-exception: true
 # LOGGING
 logging.config: file:${cfg.dir}/logback.xml
 
-#
+# Disable SSL by default
 server.ssl.enabled: false
 
 ---
 spring:
+# For HTTPS (for production, you should change keypairs and passwords)
   profiles: ssl
 
-# For HTTPS (for production, you should change keypairs and passwords)
 # server.port: 8443
 # If server.ssl.enabled=true, make sure sec:http/sec:intercept-url/@requires-channel = 'https' in spring-beans.xml
 server.ssl.enabled: true
-# For HTTPS (for production, you should change keypairs and passwords)
 server.ssl.key-store: file:${cfg.dir}/server.p12
 server.ssl.key-store-type: PKCS12
 server.ssl.key-store-password: changeit
