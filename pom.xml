@@ -1,10 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-<!-- 	<parent> -->
-<!-- 		<groupId>org.ow2.authzforce</groupId> -->
-<!-- 		<artifactId>authzforce-ce-parent</artifactId> -->
-<!-- 		<version>7.5.0</version> -->
-<!-- 	</parent> -->
 	<groupId>eu.driver</groupId>
 	<artifactId>driver-testbed-sec-authz-service</artifactId>
 	<name>${project.groupId}:${project.artifactId}</name>
@@ -28,6 +23,7 @@
 	<properties>
 		<!-- Fix for CVE-2018-8014 -->
 		<spring.boot.version>1.5.14.RELEASE</spring.boot.version>
+		<cxf.version>3.2.5</cxf.version>
 		<docker.image.prefix>drivereu</docker.image.prefix>
 		<github.global.server>github</github.global.server>
 	</properties>
@@ -140,33 +136,34 @@
 					</execution>
 				</executions>
 			</plugin>
-<!-- 			<plugin> -->
-<!-- 				<groupId>com.github.github</groupId> -->
-<!-- 				<artifactId>site-maven-plugin</artifactId> -->
-<!-- 				<version>0.12</version> -->
-<!-- 				<configuration> -->
-<!-- 					<message>Maven artifacts for ${project.name} ${project.version}</message> -->
-<!-- 					<outputDirectory>${project.build.directory}/mvn-repo</outputDirectory> -->
-<!-- 					<branch>refs/heads/master</branch> -->
-<!-- 					<includes> -->
-<!-- 						<include>**/*</include> -->
-<!-- 					</includes> -->
-<!-- 					<merge>true</merge> -->
-<!-- 					<repositoryName>maven-repo</repositoryName> -->
-<!-- 					<repositoryOwner>DRIVER-EU</repositoryOwner> -->
-<!-- 				</configuration> -->
-<!-- 				<executions> -->
-<!-- 					<execution> -->
-<!-- 						<goals> -->
-<!-- 							<goal>site</goal> -->
-<!-- 						</goals> -->
-<!-- 						<phase>deploy</phase> -->
-<!-- 					</execution> -->
-<!-- 				</executions> -->
-<!-- 			</plugin> -->
+ 			<plugin>
+ 				<groupId>com.github.github</groupId>
+ 				<artifactId>site-maven-plugin</artifactId>
+ 				<version>0.12</version>
+ 				<configuration>
+ 					<message>Maven artifacts for ${project.name} ${project.version}</message>
+ 					<outputDirectory>${project.build.directory}/mvn-repo</outputDirectory>
+ 					<branch>refs/heads/master</branch>
+ 					<includes>
+ 						<include>**/*</include>
+ 					</includes>
+ 					<merge>true</merge>
+ 					<repositoryName>maven-repo</repositoryName>
+ 					<repositoryOwner>DRIVER-EU</repositoryOwner>
+ 				</configuration>
+ 				<executions>
+ 					<execution>
+ 						<goals>
+ 							<goal>site</goal>
+ 						</goals>
+ 						<phase>deploy</phase>
+ 					</execution>
+ 				</executions> 
+ 			</plugin> 
 			<plugin>
 				<groupId>org.owasp</groupId>
 				<artifactId>dependency-check-maven</artifactId>
+				<version>3.2.1</version>
 				<configuration>
 					<cveValidForHours>24</cveValidForHours>
 					<!-- The plugin has numerous issues with version matching, which triggers false positives so we need a "suppresion" file for those. More info: https://github.com/jeremylong/DependencyCheck/issues -->
@@ -184,6 +181,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-pmd-plugin</artifactId>
+				<version>3.7</version>
 				<!-- target JDK already set by parent project's maven.compiler.target property -->
 				<configuration>
 					<verbose>true</verbose>
@@ -205,6 +203,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>findbugs-maven-plugin</artifactId>
+				<version>3.0.4</version>
 				<configuration>
 					<onlyAnalyze>eu.driver.*</onlyAnalyze>
 					<excludeFilterFile>findbugs-exclude-filter.xml</excludeFilterFile>
@@ -222,6 +221,7 @@
 				<!-- Override license-maven-plugin configuration to exclude Sunxacml files from adding GPL license headers (different license) -->
 				<groupId>com.mycila</groupId>
 				<artifactId>license-maven-plugin</artifactId>
+				<version>3.0</version>
 				<configuration>
 					<header>LICENSE_HEADER.txt</header>
 					<includes>
@@ -251,6 +251,7 @@
 				<!-- This execution of surefire is overwritten by a default one unless we specify a different version in pluginManagement. -->
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.19.1</version>
 				<configuration>
 					<!-- <suiteXmlFiles> -->
 					<!-- Parameters in the XML files seem to be ignored (more info: http://maven.apache.org/surefire/maven-surefire-plugin/examples/testng.html) -->
@@ -334,6 +335,14 @@
 					</imageTags>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>com.amashchenko.maven.plugin</groupId>
+            			<artifactId>gitflow-maven-plugin</artifactId>
+            			<version>1.11.0</version>
+            			<configuration>
+                			<verbose>true</verbose>	
+            			</configuration>
+        		</plugin>
 		</plugins>
 	</build>
 </project>
