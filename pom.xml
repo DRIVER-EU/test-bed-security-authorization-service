@@ -4,29 +4,45 @@
 	<artifactId>driver-testbed-sec-authz-service</artifactId>
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>DRIVER+ Testbed Security Service for Authorization (policy administration and decision, aka PAP and PDP in XACML standard)</description>
-	<version>2.1.1-SNAPSHOT</version>
-	<url>http://www.driver-project.eu/</url>
-	<developers>
-		<developer>
-			<name>Cyril Dangerville</name>
-			<organization>THALES</organization>
-			<organizationUrl>http://thalesgroup.com</organizationUrl>
-		</developer>
-	</developers>
-	<scm>
-		<connection>scm:git:https://github.com/DRIVER-EU/test-bed-security-authorization-service.git</connection>
-		<developerConnection>scm:git:https://github.com/DRIVER-EU/test-bed-security-authorization-service.git</developerConnection>
-		<tag>HEAD</tag>
-		<!-- Publicly browsable repository URL. For example, via Gitlab web UI. -->
-		<url>https://github.com/DRIVER-EU/test-bed-security-authorization-service</url>
-	</scm>
+	<version>2.1.1</version>
 	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<!-- Controls maven compiler plugin -source -->
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<!-- Controls maven compiler plugin -target and pmd plugin targetJdk -->
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<!-- Dynamic computation of current year for license headers -->
+		<maven.build.timestamp.format>yyyy</maven.build.timestamp.format>
+		<currentYear>${maven.build.timestamp}</currentYear>
+		<git.url.base>https://github.com/DRIVER-EU/test-bed-security-authorization-service</git.url.base>
 		<!-- Fix for CVE-2018-8014 -->
 		<spring.boot.version>1.5.14.RELEASE</spring.boot.version>
 		<cxf.version>3.2.5</cxf.version>
 		<docker.image.prefix>drivereu</docker.image.prefix>
 		<github.global.server>github</github.global.server>
 	</properties>
+	<url>${git.url.base}</url>
+	 <inceptionYear>2018</inceptionYear>
+	   <licenses>
+	      <license>
+		 <name>GNU GENERAL PUBLIC LICENSE Version 3.0</name>
+		 <url>https://www.gnu.org/licenses/gpl-3.0.en.html</url>
+	      </license>
+	   </licenses>
+	   <developers>
+	      <developer>
+		 <name>Cyril Dangerville</name>
+		 <email>cyril.dangerville@projectdriver.eu</email>
+		 <organization>THALES</organization>
+		 <organizationUrl>http://thalesgroup.com</organizationUrl>
+	      </developer>
+	   </developers>
+	   <scm>
+	      <connection>scm:git:${git.url.base}.git</connection>
+	      <developerConnection>scm:git:${git.url.base}.git</developerConnection>
+	      <tag>HEAD</tag>
+	      <url>${git.url.base}</url>
+	</scm>
 	<repositories>
 		<repository>
 			<!-- Required by owasp dependency-check plugin for find info (POM) about dependency org.everit.json.schema in child modules -->
@@ -223,6 +239,13 @@
 				<artifactId>license-maven-plugin</artifactId>
 				<version>3.0</version>
 				<configuration>
+					<properties>
+							     <!-- Values to be substituted in template -->
+							     <inceptionYear>${project.inceptionYear}</inceptionYear>
+							     <currentYear>${currentYear}</currentYear>
+							     <copyrightOwner>THALES</copyrightOwner>
+							     <projectName>AuthzForce CE</projectName>
+					</properties>
 					<header>LICENSE_HEADER.txt</header>
 					<includes>
 						<include>src/main/java/eu/driver/**</include>
