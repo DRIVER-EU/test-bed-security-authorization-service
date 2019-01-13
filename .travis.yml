@@ -8,12 +8,13 @@ jobs:
   include:
     - stage: test-bed-security-build-deploy
       if: branch IN (master,develop)
-      install: mvn install dockerfile:build
+      install: mvn install
+      #install: mvn install dockerfile:build
       before_script: cp .travis.settings.xml $HOME/.m2/settings.xml
       script:
         - mvn deploy
-        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-        - docker push drivereu/driver-testbed-sec-authz-service
+       # - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+       # - docker push drivereu/driver-testbed-sec-authz-service
 
 cache:
   directories:
