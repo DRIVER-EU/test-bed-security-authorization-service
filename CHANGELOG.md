@@ -2,6 +2,14 @@
 All notable changes to this project are documented in this file following the [Keep a CHANGELOG](http://keepachangelog.com) conventions.
 
 
+## 2.1.1
+### Changed
+- Externalized configuration of DRIVER's access policy schema (JSON)
+
+### Fixed
+- XACML/JSON-XACML/XML Match element conversion: the AttributeValue datatype was always the same as the AttributeDesignator/Selector's whereas it must be different for certain functions like x500Name-regexp-match
+
+
 ## 2.0.0
 ### Changed
 - REST API: `subject` key replaced with `subject.id` in JSON payload of access policy, to avoid confusion with new subject attributes (e.g. `subject.group`). Also `subject.id` is optional.

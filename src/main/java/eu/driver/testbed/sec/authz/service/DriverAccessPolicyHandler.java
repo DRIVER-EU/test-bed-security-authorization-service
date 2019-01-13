@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012-2018 THALES.
+ * Copyright (C) 2018-2019 THALES.
  *
  * This file is part of AuthzForce CE.
  *
@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.loader.SchemaLoader;
@@ -37,7 +36,9 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
@@ -51,6 +52,9 @@ import freemarker.template.TemplateExceptionHandler;
  */
 public final class DriverAccessPolicyHandler
 {
+	/**
+	 * Access rule in a DRIVER access policy
+	 */
 	public static final class DriverAccessRule
 	{
 		private static final List<String> SUBJECT_MATCH_ATT_IDENTIFIERS = Arrays.asList("subject.id", "subject.group");
@@ -96,41 +100,44 @@ public final class DriverAccessPolicyHandler
 
 	}
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(DriverAccessPolicyHandler.class);
-
 	/**
-	 * JSON schema for validating Driver+/JSON access policies (see driver-access-policy.schema), to be used by external libraries (like CXF JSON provider)
+	 * Loads schema from Spring-handled resource
+	 * 
+	 * @param schemaLocation
+	 *            schema location (Spring URL)
+	 * @return JSON schema instance
+	 * @throws IOException
+	 *             error loading the schema
 	 */
-	public static final Schema DRIVER_ACCESS_POLICY_JSON_SCHEMA;
-
-	static
+	public static Schema newJsonSchema(final Resource schemaLocation) throws IOException
 	{
-		try (final Reader reader = new BufferedReader(new InputStreamReader(DriverAccessPolicyHandler.class.getResourceAsStream("access_policy.schema.json"), StandardCharsets.UTF_8)))
+		Preconditions.checkArgument(schemaLocation != null, "Undefined location of JSON schema");
+
+		try (final Reader reader = new BufferedReader(new InputStreamReader(schemaLocation.getInputStream(), StandardCharsets.UTF_8)))
 		{
 			final JSONObject rawSchema = new JSONObject(new JSONTokener(reader));
 			// final SchemaLoader schemaLoader = schemaLoaderBuilder.schemaJson(rawSchema).build();
-			DRIVER_ACCESS_POLICY_JSON_SCHEMA = SchemaLoader.load(rawSchema); // schemaLoader.load().build();
-		}
-		catch (final IOException e)
-		{
-			throw new RuntimeException(e);
+			return SchemaLoader.load(rawSchema); // schemaLoader.load().build();
 		}
 
 	}
 
-	private static final String DEFAULT_DRIVER_TO_XACML_JSON_POLICY_TMPL_LOCATION = "classpath:driver-to-xacml-json.ftl";
+	private static final Logger LOGGER = LoggerFactory.getLogger(DriverAccessPolicyHandler.class);
 
 	private final Template driverToXacmlJsonPolicyFtl;
 
 	/**
 	 * Creates an instance with an optional location to a customized transformation template (FreeMarker)
 	 * 
-	 * @param driverToXacmlJsonFtlLocation
+	 * @param driverAccessPolicyJsonSchema
+	 *            DRIVER's access policy schema
+	 * 
+	 * @param driverToXacmlJsonPolicyFtlLocation
 	 *            Spring-ResourceLoader-compatible location of a transformation template (FreeMarker)
 	 */
-	public DriverAccessPolicyHandler(final Optional<String> driverToXacmlJsonFtlLocation)
+	public DriverAccessPolicyHandler(final Schema driverAccessPolicyJsonSchema, final String driverToXacmlJsonPolicyFtlLocation)
 	{
-		final String driverToXacmlJsonPolicyFtlLocation = driverToXacmlJsonFtlLocation.orElse(DEFAULT_DRIVER_TO_XACML_JSON_POLICY_TMPL_LOCATION);
+		Preconditions.checkArgument(driverAccessPolicyJsonSchema != null, "Undefined DRIVER's access policy JSON schema");
 
 		// Create your Configuration instance, and specify if up to what FreeMarker
 		// version (here 2.3.27) do you want to apply the fixes that are not 100%
@@ -166,7 +173,7 @@ public final class DriverAccessPolicyHandler
 	 * Convert Driver access policy format to XACML/JSON format
 	 * 
 	 * @param schemaValidDriverAccessPolicy
-	 *            Driver acess policy assumed valid against {@link #DRIVER_ACCESS_POLICY_JSON_SCHEMA}.
+	 *            Driver access policy assumed valid.
 	 * @param policyId
 	 *            policyId set in the resulting XACML/JSON policy
 	 * @param policyVersion

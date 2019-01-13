@@ -66,7 +66,7 @@ Encoding: UTF-8
 Http-Method: PUT
 Content-Type: application/json
 Headers: {Accept=[application/json], content-type=[application/json], Authorization=[Basic YWRtaW46YWRtaW4=]}
-Payload: {"rules":[{"subject.id":"client1","permissions":[{"allow":true,"action":"PUBLISH"},{"allow":false,"action":"SUBSCRIBE"}]},{"subject.id":"client2","permissions":[{"allow":true,"action":"SUBSCRIBE"}]}]}
+Payload: {"rules":[{"subject.id":"client1","permissions":[{"allow":true,"action":"PUBLISH"},{"allow":false,"action":"SUBSCRIBE"},{"allow":false,"action":"DESCRIBE"}]},{"subject.id":"client2","permissions":[{"allow":true,"action":"SUBSCRIBE"},{"allow":false,"action":"DESCRIBE"}]}]}
 ```
 
 This request grants publish/subscribe permissions to `client1` (publish only) and `client2` (subscribe only) on the topic `Topic_A`.
@@ -83,7 +83,7 @@ Encoding: UTF-8
 Http-Method: PUT
 Content-Type: application/json
 Headers: {Accept=[application/json], content-type=[application/json], Authorization=[Basic YWRtaW46YWRtaW4=]}
-Payload: {"rules":[{"subject.id":"client1","permissions":[{"allow":true,"action":"READ"}]}]}
+Payload: {"rules":[{"subject.id":"client1","permissions":[{"allow":true,"action":"READ"},{"allow":true,"action":"DESCRIBE"}]}]}
 ```
 
 This request allows `client1` to join the consumer group `ConsumerGroup1`.
@@ -96,10 +96,10 @@ Encoding: UTF-8
 Http-Method: PUT
 Content-Type: application/json
 Headers: {Accept=[application/json], content-type=[application/json], Authorization=[Basic YWRtaW46YWRtaW4=]}
-Payload: {"rules":[{"subject.group":"ConsumerGroup1","permissions":[{"allow":true,"action":"READ"}]}]}
+Payload: {"rules":[{"subject.group":"ConsumerGroup1","permissions":[{"allow":true,"action":"READ"},{"allow":true,"action":"DESCRIBE"}]}]}
 ```
 
-This request allows (all clients in) the consumer group `ConsumerGroup1` to publish on the topic `Topic_A`.
+This request allows (all clients in) the consumer group `ConsumerGroup1` to subscribe to the topic `Topic_A`.
 
 ### Get the current access policy for a given Kafka topic or group
 Get the access policy for topic `Topic_A` for instance with a HTTP request as follows (only important headers shown for conciseness, e.g.Content-Length header is omitted but required as usual):
@@ -120,7 +120,7 @@ Example of response:
 Response-Code: 200
 Content-Type: application/json
 Headers: {Content-Type=[application/json]}
-Payload: {"rules":[{"subject":"clientID1","permissions":[{"allow":true,"action":"PUBLISH"},{"allow":false,"action":"SUBSCRIBE"}]},{"subject":"client2","permissions":[{"allow":true,"action":"SUBSCRIBE"}]}]}
+Payload: {"rules":[{"subject":"clientID1","permissions":[{"allow":true,"action":"PUBLISH"},{"allow":false,"action":"SUBSCRIBE"},{"allow":false,"action":"DESCRIBE"}]},{"subject":"client2","permissions":[{"allow":true,"action":"SUBSCRIBE"},{"allow":false,"action":"DESCRIBE"}]}]}
 ```
 
 ### Delete the access policy for a given Kafka topic

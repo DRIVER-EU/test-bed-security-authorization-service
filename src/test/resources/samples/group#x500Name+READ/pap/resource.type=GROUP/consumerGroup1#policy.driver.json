@@ -1,7 +1,7 @@
 {
 	"rules": [
 		{
-			"subject.id": "CN=Client1",
+			"subject.id": "CN=Client1,O=TheOrg",
 			"permissions": [
 				{
 					"action": "READ",

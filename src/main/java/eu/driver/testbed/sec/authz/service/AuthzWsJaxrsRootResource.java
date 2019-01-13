@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012-2018 THALES.
+ * Copyright (C) 2018-2019 THALES.
  *
  * This file is part of AuthzForce CE.
  *
@@ -47,6 +47,7 @@ import javax.ws.rs.core.PathSegment;
 import javax.xml.bind.JAXBException;
 import javax.xml.transform.stream.StreamSource;
 
+import org.everit.json.schema.Schema;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.ow2.authzforce.core.pdp.api.EnvironmentPropertyName;
@@ -189,6 +190,8 @@ public class AuthzWsJaxrsRootResource
 	 *            location of XML catalog for resolving XSDs imported by the extension XSD specified as 'extensionXsdLocation' argument (may be null if 'extensionXsdLocation' is null)
 	 * @param xacmlJsonPolicyFilenameSuffix
 	 *            XACML/JSON filename suffix of policy files in policy repository
+	 * @param driverAccessPolicyJsonSchema
+	 *            JSON schema of DRIVER's access policy
 	 * @param driverToXacmlJsonPolicyFtlLocation
 	 *            location of Driver+-to-XACML/JSON access policy transformation's Freemarker template
 	 * @throws java.lang.IllegalArgumentException
@@ -198,44 +201,9 @@ public class AuthzWsJaxrsRootResource
 	 * 
 	 */
 	public AuthzWsJaxrsRootResource(final Resource confLocation, final String catalogLocation, final String extensionXsdLocation, final String xacmlJsonPolicyFilenameSuffix,
-	        final String driverToXacmlJsonPolicyFtlLocation/*
-	                                                        * , final Map<String, AttributeDesignatorType> attributeDictionary, final Map<String, String> equalFunctionsByDatatype
-	                                                        */) throws IllegalArgumentException, IOException
+	        final Schema driverAccessPolicyJsonSchema, final String driverToXacmlJsonPolicyFtlLocation) throws IllegalArgumentException, IOException
 	{
-		Preconditions.checkArgument(confLocation != null && catalogLocation != null
-		        && extensionXsdLocation != null /*
-		                                         * && attributeDictionary != null && !attributeDictionary.isEmpty() && equalFunctionsByDatatype != null && !equalFunctionsByDatatype.isEmpty()
-		                                         */);
-
-		// this.equalFunctionsByDatatype = equalFunctionsByDatatype;
-
-		/*
-		 * Convert AttributeDesignators to JSONobjects
-		 */
-		/*
-		 * This will also check that there is an *-equal function for each defined attribute datatype
-		 */
-		// this.jsonAttributeDesignatorsByAlias = attributeDictionary.entrySet().stream()
-		// .collect(Collectors.toMap(e -> e.getKey(), e -> convertJaxbAttributeDesignatorToJson(e.getValue(), equalFunctionsByDatatype)));
-
-		/*
-		 * DRIVER+-specific
-		 */
-		// final JSONObject subjectIdAttDesignator = jsonAttributeDesignatorsByAlias.get("subject");
-		// final JSONObject actionIdAttDesignator = jsonAttributeDesignatorsByAlias.get("action");
-		// if (subjectIdAttDesignator == null || actionIdAttDesignator == null)
-		// {
-		// /*
-		// * Resource attribute is defined dynamically since not part of Driver's policy format (only specified in URI), so not checked here
-		// */
-		// throw new RuntimeException("One of these attributes (aliases) is missing in attributeDictionary: subject, action");
-		// }
-		/*
-		 * 
-		 */
-
-		// this.driverToXacmlJsonPolicyConverter = new DriverToXacmlJsonPolicyConverter(DEFAULT_POLICY_COMBINING_ALGO, DEFAULT_RULE_COMBINING_ALGO, subjectIdAttDesignator,
-		// equalFunctionsByDatatype.get(subjectIdAttDesignator.getString("dataType")), actionIdAttDesignator, equalFunctionsByDatatype.get(actionIdAttDesignator.getString("dataType")));
+		Preconditions.checkArgument(confLocation != null && catalogLocation != null && extensionXsdLocation != null);
 
 		/*
 		 * Policy repository settings
@@ -324,7 +292,7 @@ public class AuthzWsJaxrsRootResource
 		final PdpEngineConfiguration pdpEngineConf = new PdpEngineConfiguration(pdpJaxbConf, this.pdpEnvProps);
 		this.pdpResource = new XacmlPdpResource(pdpEngineConf);
 
-		this.driverAccessPolicyHandler = new DriverAccessPolicyHandler(Optional.ofNullable(driverToXacmlJsonPolicyFtlLocation));
+		this.driverAccessPolicyHandler = new DriverAccessPolicyHandler(driverAccessPolicyJsonSchema, driverToXacmlJsonPolicyFtlLocation);
 	}
 
 	/**
@@ -380,7 +348,7 @@ public class AuthzWsJaxrsRootResource
 	 * 
 	 * 
 	 * @return the child policy of policy {policyId} with Target = [a1=val1 AND a2=val2, etc.] (in XACML, this is a sequence of AnyOf, where each AnyOf is a single Allof with a single Match) where aN
-	 *         is an attribute alias defined by {@code attributeDictionary} arg to {@link #AuthzWsJaxrsRootResource(Resource, String, String, String)}
+	 *         is an attribute alias defined by {@code attributeDictionary} arg to {@link #AuthzWsJaxrsRootResource(Resource, String, String, String, Resource, String)}
 	 */
 	@GET
 	@Path("/pap/policies/{policyId}")
@@ -411,7 +379,7 @@ public class AuthzWsJaxrsRootResource
 	 *            configuration
 	 * 
 	 * @return creates/updates the child policy of policy {policyId} with Target = [a1=val1 AND a2=val2, etc.] (in XACML, this is a sequence of AnyOf, where each AnyOf is a single Allof with a single
-	 *         Match) where aN is an attribute alias defined by {@code attributeDictionary} arg to {@link #AuthzWsJaxrsRootResource(Resource, String, String, String)}
+	 *         Match) where aN is an attribute alias defined by {@code attributeDictionary} arg to {@link #AuthzWsJaxrsRootResource(Resource, String, String, String, Resource, String)}
 	 */
 	@PUT
 	@Path("/pap/policies/{policyId}/{var: .*}")
@@ -659,7 +627,7 @@ public class AuthzWsJaxrsRootResource
 	 *            path segments {@code policies;a1=val1;a2=val2/...}
 	 * 
 	 * @return the child policy of policy {policyId} with Target = [a1=val1 AND a2=val2, etc.] (in XACML, this is a sequence of AnyOf, where each AnyOf is a single Allof with a single Match) where aN
-	 *         is an attribute alias defined by {@code attributeDictionary} arg to {@link #AuthzWsJaxrsRootResource(Resource, String, String, String)}
+	 *         is an attribute alias defined by {@code attributeDictionary} arg to {@link #AuthzWsJaxrsRootResource(Resource, String, String, String, Resource, String)}
 	 */
 	@GET
 	@Path("/pap/policies/{policyId}/{var: .*}")

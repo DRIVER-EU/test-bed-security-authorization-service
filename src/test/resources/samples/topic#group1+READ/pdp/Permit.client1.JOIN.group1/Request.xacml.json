@@ -9,8 +9,8 @@
                 [
                     {
                         "AttributeId": "urn:oasis:names:tc:xacml:1.0:subject:subject-id",
-                        "DataType":"http://www.w3.org/2001/XMLSchema#string",
-                        "Value": "client1"
+                        "DataType":"urn:oasis:names:tc:xacml:1.0:data-type:x500Name",
+                        "Value": "CN=Client1"
                     },
                     {
                         "AttributeId": "urn:oasis:names:tc:xacml:3.0:subject:authn-locality:ip-address",

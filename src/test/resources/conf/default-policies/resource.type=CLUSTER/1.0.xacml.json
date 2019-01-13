@@ -22,7 +22,7 @@
 		"policies": [
 			{
 				"policy": {
-					"description": "Anonymous access to cluster kafka-cluster",
+					"description": "Broker access to cluster kafka-cluster",
 					"id": "resource.type=CLUSTER#resource.id=kafka-cluster",
 					"version": "1.0",
 					"target": [
@@ -72,7 +72,21 @@
 											}
 										}
 									]
-								]
+								],
+								[
+							    	[
+										{
+											"matchFunction": "urn:oasis:names:tc:xacml:1.0:function:x500Name-equal",
+											"value": "CN=localhost,OU=Authz Service Dev Project,OU=WP923,O=DRIVER-PROJECT.EU",
+											"attributeDesignator": {
+												"category": "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject",
+												"id": "urn:oasis:names:tc:xacml:1.0:subject:subject-id",
+												"dataType": "urn:oasis:names:tc:xacml:1.0:data-type:x500Name",
+												"mustBePresent": false
+											}
+										}
+									]
+							    ]
 							]
 						}
 					]
