@@ -2,7 +2,7 @@
 All notable changes to this project are documented in this file following the [Keep a CHANGELOG](http://keepachangelog.com) conventions.
 
 
-## 2.1.0
+## 2.1.1
 ### Changed
 - Externalized configuration of DRIVER's access policy schema (JSON)
 
