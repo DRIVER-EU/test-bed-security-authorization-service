@@ -29,11 +29,11 @@
 		<sec:authentication-provider>
 			<sec:user-service>
 				<!-- authorities is a comma-separated list of roles -->
-				<!-- When migrating to Spring Security 5.x, prefix all non-hashed passwords with {noop}, e.g. '{noop}password' to indicate to DelegatingPasswordEncoder that NoOpPasswordEncoder should be used. This 
-					is not safe for production, but makes reading in samples easier. Normally passwords should be hashed using BCrypt. -->
+				<!-- In Spring Security 5.x, prefix all non-hashed passwords with {noop}, e.g. '{noop}password' to indicate to DelegatingPasswordEncoder that NoOpPasswordEncoder should be used. This is not safe for 
+					production, but makes reading in samples easier. Normally passwords should be hashed using BCrypt. -->
 				<sec:user
 					name="admin"
-					password="admin"
+					password="{noop}admin"
 					authorities="ROLE_ADMIN" />
 				<!-- Expected to match CN of test client certificate when ssl profile active (see below) -->
 				<sec:user
@@ -89,16 +89,29 @@
 
 	<beans profile="default,ssl">
 		<!-- JAX-RS service supporting XML (textual) and JSON -->
-		<core:bus>
-			<core:properties>
-				<!-- Since not using default JSON Provider, prevent it to be triggered (especially when using FastInfoset instead of JSON, else there is conflict) -->
-				<entry
-					key="skip.default.json.provider.registration"
-					value="true" />
-			</core:properties>
-		</core:bus>
+<!-- 		<core:bus> -->
+<!-- 			<core:properties> -->
+<!-- 				Since not using default JSON Provider, prevent it to be triggered (especially when using FastInfoset instead of JSON, else there is conflict) -->
+<!-- 				<entry -->
+<!-- 					key="skip.default.json.provider.registration" -->
+<!-- 					value="true" /> -->
+<!-- 			</core:properties> -->
+<!-- 		</core:bus> -->
 
-		<bean id="driverAccessPolicySchema"
+		<bean
+			id="cxf"
+			class="org.apache.cxf.bus.spring.SpringBus">
+			<property name="properties">
+				<map>
+					<entry
+						key="skip.default.json.provider.registration"
+						value="true" />
+				</map>
+			</property>
+		</bean>
+
+		<bean
+			id="driverAccessPolicySchema"
 			class="eu.driver.testbed.sec.authz.service.DriverAccessPolicyHandler"
 			factory-method="newJsonSchema">
 			<constructor-arg
