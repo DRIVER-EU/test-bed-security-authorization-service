@@ -1,6 +1,12 @@
 # Change log
 All notable changes to this project are documented in this file following the [Keep a CHANGELOG](http://keepachangelog.com) conventions.
 
+## 2.2.0
+### Changed
+- Dependency versions (CVE fixing):
+    - CXF: 3.3.0,
+    - Spring Boot: 2.1.2.RELEASE
+
 
 ## 2.1.1
 ### Changed
