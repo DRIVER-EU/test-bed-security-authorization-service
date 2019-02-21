@@ -22,7 +22,7 @@
 		"policies": [
 			{
 				"policy": {
-					"description": "Anonymous access to Confluent metrics, Confluent Schema Registry and Kafa Connect's configuration, offset and status storage topics (set by CONNECT_CONFIG_STORAGE_TOPIC, CONNECT_OFFSET_STORAGE_TOPIC, CONNECT_STATUS_STORAGE_TOPIC)",
+					"description": "Allow Kafka Schema Registry to do any action on topic '_schemas' unauthenticated, assuming only this Docker service may connect to Kafka broker via PLAINTEXT listener (external connections must be other SSL ONLY). In particular, the Schema Registry needs/tries to create the topic '_schemas' always at startup if not present.",
 					"id": "resource.type=TOPIC#resource.id={_schemas}",
 					"version": "1.0",
 					"target": [

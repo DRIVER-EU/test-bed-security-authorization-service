@@ -20,15 +20,16 @@ package eu.driver.testbed.sec.authz.service;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
 /**
  * Spring Boot application's main class
  *
  */
-@Configuration
+// @Configuration
 @EnableAutoConfiguration
+@EnableWebSecurity
 // @PropertySource("classpath:application.properties")
 @ImportResource("${spring.beans.conf}")
 public class AuthzWsSpringBootApp
